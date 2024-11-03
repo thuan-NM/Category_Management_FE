@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import EmployeeServices from '../../services/EmployeeServices';
 
@@ -33,11 +32,11 @@ const EmployeeForm = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (id) {
-      EmployeeServices.update(id,employee)
+      EmployeeServices.update(id, employee)
         .then(() => navigate('/employees'))
         .catch(err => console.error(err));
     } else {
-        EmployeeServices.create(employee)
+      EmployeeServices.create(employee)
         .then(() => navigate('/employees'))
         .catch(err => console.error(err));
     }
@@ -58,7 +57,58 @@ const EmployeeForm = () => {
             required
           />
         </div>
-        {/* Các trường khác tương tự */}
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2">Ngày sinh</label>
+          <input
+            type="date"
+            name="birth_date"
+            value={employee.birth_date}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2">Số điện thoại</label>
+          <input
+            type="text"
+            name="phone_number"
+            value={employee.phone_number}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2">Số điện thoại người giám hộ</label>
+          <input
+            type="text"
+            name="parent_number"
+            value={employee.parent_number}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2">Tên đăng nhập</label>
+          <input
+            type="text"
+            name="username"
+            value={employee.username}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2">Mật khẩu</label>
+          <input
+            type="password"
+            name="password"
+            value={employee.password}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
+            required={!id}
+          />
+        </div>
         <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
           {id ? 'Cập nhật' : 'Thêm mới'}
         </button>
