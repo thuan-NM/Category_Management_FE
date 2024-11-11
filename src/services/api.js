@@ -1,17 +1,14 @@
+// src/api.js
 import axios from "axios";
-const token = localStorage.getItem('token'); // Lấy token từ localStorage
-
-const commonConfig = {
-    headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`, // Thêm token vào header Authorization
-    },
-};
 
 export default (baseURL) => {
+    const token = localStorage.getItem('token'); // Get token from localStorage each time
     return axios.create({
         baseURL,
-        ...commonConfig,
+        headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: token ? `Bearer ${token}` : undefined,
+        },
     });
 };

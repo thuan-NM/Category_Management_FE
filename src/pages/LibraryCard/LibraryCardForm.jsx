@@ -47,7 +47,7 @@ const LibraryCardForm = () => {
       </h2>
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Số thẻ */}
-        {!number && (
+        {/* {!number && (
           <div className="mb-4">
             <label className="block text-gray-700 font-medium mb-2">Số thẻ</label>
             <input
@@ -60,7 +60,7 @@ const LibraryCardForm = () => {
               required
             />
           </div>
-        )}
+        )} */}
 
         {/* Ngày bắt đầu */}
         <div className="mb-4">
