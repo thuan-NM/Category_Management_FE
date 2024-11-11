@@ -1,28 +1,40 @@
+// src/services/BookServices.js
+
 import createApiClient from "./api";
 
 class BookServices {
-    constructor(baseURL = `${import.meta.env.VITE_API_URL}` + `/books`) {
+    constructor(baseURL = `${import.meta.env.VITE_API_URL}/books`) {
         this.api = createApiClient(baseURL);
     }
 
-    async getAll(query = "") {
-        return (await this.api.get(`?${query}`)).data;
+    // Get all books with query parameters
+    async getAll(params = {}) {
+        const response = await this.api.get('/', { params });
+        return response.data.data; // Directly return { count, rows }
     }
 
+    // Get book by ID
     async getById(id) {
-        return (await this.api.get(`/${id}`)).data;
+        const response = await this.api.get(`/${id}`);
+        return response.data.data;
     }
 
+    // Create a new book
     async create(data) {
-        return (await this.api.post(`/`, data)).data;
+        const response = await this.api.post('/', data);
+        return response.data.data;
     }
 
+    // Update a book
     async update(id, data) {
-        return (await this.api.put(`/${id}`, data)).data;
+        const response = await this.api.put(`/${id}`, data);
+        return response.data.data;
     }
 
+    // Delete a book
     async delete(id) {
-        return (await this.api.delete(`/${id}`)).data;
+        const response = await this.api.delete(`/${id}`);
+        return response.data.data;
     }
 }
 
