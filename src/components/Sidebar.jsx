@@ -1,57 +1,117 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Layout, Menu, Avatar, Button } from 'antd';
 import {
-  BookOpenIcon,
-  UsersIcon,
-  ClipboardDocumentListIcon,
-  UserGroupIcon,
-  IdentificationIcon,
-  BuildingOfficeIcon,
-  UserIcon,
-  DocumentDuplicateIcon // icon mới cho Borrowing Details
-} from "@heroicons/react/24/outline";
+    UserOutlined,
+    BookOutlined,
+    TeamOutlined,
+    LogoutOutlined,
+    PhoneOutlined,
+} from '@ant-design/icons';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '../store/authSlice';
 
-const Sidebar = () => (
-  <aside className="w-64 bg-gray-800 text-white h-screen fixed">
-    <nav className="mt-10">
-      <Link to="/authors" className="flex items-center py-2.5 px-4 hover:bg-gray-700">
-        <UsersIcon className="h-5 w-5 mr-2" />
-        Tác giả
-      </Link>
-      <Link to="/books" className="flex items-center py-2.5 px-4 hover:bg-gray-700">
-        <BookOpenIcon className="h-5 w-5 mr-2" />
-        Sách
-      </Link>
-      <Link to="/borrowings" className="flex items-center py-2.5 px-4 hover:bg-gray-700">
-        <ClipboardDocumentListIcon className="h-5 w-5 mr-2" />
-        Mượn sách
-      </Link>
-      <Link to="/borrowingdetails" className="flex items-center py-2.5 px-4 hover:bg-gray-700">
-        <DocumentDuplicateIcon className="h-5 w-5 mr-2" />
-        Chi tiết Mượn
-      </Link>
-      <Link to="/employees" className="flex items-center py-2.5 px-4 hover:bg-gray-700">
-        <UserGroupIcon className="h-5 w-5 mr-2" />
-        Nhân viên
-      </Link>
-      <Link to="/genres" className="flex items-center py-2.5 px-4 hover:bg-gray-700">
-        <BookOpenIcon className="h-5 w-5 mr-2" />
-        Thể loại
-      </Link>
-      <Link to="/librarycards" className="flex items-center py-2.5 px-4 hover:bg-gray-700">
-        <IdentificationIcon className="h-5 w-5 mr-2" />
-        Thẻ thư viện
-      </Link>
-      <Link to="/publishers" className="flex items-center py-2.5 px-4 hover:bg-gray-700">
-        <BuildingOfficeIcon className="h-5 w-5 mr-2" />
-        Nhà xuất bản
-      </Link>
-      <Link to="/readers" className="flex items-center py-2.5 px-4 hover:bg-gray-700">
-        <UserIcon className="h-5 w-5 mr-2" />
-        Độc giả
-      </Link>
-    </nav>
-  </aside>
-);
+const { Sider } = Layout;
+
+const Sidebar = () => {
+    const [collapsed, setCollapsed] = useState(false);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const userInfo = useSelector((state) => state.auth.user); // Fetch user data from Redux store
+
+    console.log('User info:', userInfo);
+
+    const toggleCollapsed = () => {
+        setCollapsed(!collapsed);
+    };
+
+    const handleLogout = () => {
+        dispatch(logout());
+        navigate('/auth');
+    };
+
+    // Define the items for the menu, filtering out "Employees" tab for employees
+    const menuItems = [
+        {
+            key: '1',
+            icon: <TeamOutlined />,
+            label: <Link to="/authors">Authors</Link>,
+        },
+        {
+            key: '2',
+            icon: <BookOutlined />,
+            label: <Link to="/books">Books</Link>,
+        },
+        {
+            key: '3',
+            icon: <BookOutlined />,
+            label: <Link to="/borrowings">Borrowings</Link>,
+        },
+        ...(userInfo?.role === 'admin' ? [
+            {
+                key: '4',
+                icon: <TeamOutlined />,
+                label: <Link to="/employees">Employees</Link>,
+            },
+        ] : []),
+        {
+            key: '5',
+            icon: <BookOutlined />,
+            label: <Link to="/genres">Genres</Link>,
+        },
+        {
+            key: '6',
+            icon: <BookOutlined />,
+            label: <Link to="/librarycards">Library Cards</Link>,
+        },
+        {
+            key: '7',
+            icon: <BookOutlined />,
+            label: <Link to="/publishers">Publishers</Link>,
+        },
+    ];
+
+    return (
+        <Sider
+            collapsible
+            collapsed={collapsed}
+            onCollapse={toggleCollapsed}
+            className="min-h-screen bg-gray-900 shadow-lg flex flex-col justify-between py-4"
+            width={250}
+        >
+            {/* Header Section */}
+            <div className="p-5 text-center">
+                <Avatar size={collapsed ? 48 : 72} icon={<UserOutlined />} className="mx-auto" />
+                {!collapsed && userInfo && (
+                    <div className="mt-4 text-white">
+                        <div className="font-semibold text-lg">{userInfo.full_name}</div>
+                        <div className="mt-2 flex items-center justify-center text-sm text-gray-300">
+                            <PhoneOutlined className="mr-1" />
+                            <span>{userInfo.phone_number}</span>
+                        </div>
+                        <div className="mt-1 text-sm text-gray-300">
+                            Role: {userInfo.role}
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Navigation Section */}
+            <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']} items={menuItems} className="flex-1" />
+
+            {/* Footer Section */}
+            <div className="p-5 text-center">
+                <Button
+                    type="primary"
+                    icon={<LogoutOutlined />}
+                    onClick={handleLogout}
+                    className="w-full bg-red-600 hover:bg-red-700 border-none"
+                >
+                    {!collapsed && 'Logout'}
+                </Button>
+            </div>
+        </Sider>
+    );
+};
 
 export default Sidebar;
