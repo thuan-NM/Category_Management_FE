@@ -15,7 +15,7 @@ const authSlice = createSlice({
             state.user = action.payload.user;
             state.token = action.payload.token;
 
-            // Optionally save to localStorage
+            // Lưu token vào localStorage
             localStorage.setItem('isAuthenticated', 'true');
             localStorage.setItem('user', JSON.stringify(action.payload.user));
             localStorage.setItem('token', action.payload.token);
@@ -25,7 +25,7 @@ const authSlice = createSlice({
             state.user = null;
             state.token = null;
 
-            // Clear from localStorage
+            // Xóa token khỏi localStorage
             localStorage.removeItem('isAuthenticated');
             localStorage.removeItem('user');
             localStorage.removeItem('token');
