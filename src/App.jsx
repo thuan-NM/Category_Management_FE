@@ -5,13 +5,22 @@ import AppRoutes from './routes/AppRoutes';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-function App() {
-  return (
-    <Router>
-      <ToastContainer />
+const App = () => (
+  <Router>
+    <div>
       <AppRoutes />
-    </Router>
-  );
-}
+      <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
+    </div>
+  </Router>
+);
 
 export default App;
