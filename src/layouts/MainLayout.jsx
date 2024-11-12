@@ -1,19 +1,42 @@
 import React from 'react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import { Layout } from 'antd';
 import Sidebar from '../components/Sidebar';
+import { Outlet } from 'react-router-dom';
 
-const MainLayout = ({ children }) => (
-  <div className="flex">
-    <Sidebar />
-    <div className="ml-64 flex-1 flex flex-col min-h-screen">
-      <Header />
-      <main className="flex-1 p-6 bg-gray-100">
-        {children}
-      </main>
-      <Footer />
-    </div>
-  </div>
-);
+const { Header, Content, Footer } = Layout;
+
+const MainLayout = ({ children }) => {
+
+  return (
+    <Layout style={{ minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
+      {/* Sidebar */}
+      <Sidebar />
+
+      {/* Main Content Area */}
+      <Layout
+        className={`transition-all duration-300 ease-in-out`}
+        style={{
+          transition: 'margin-left 0.3s ease-in-out',
+        }}
+      >
+        {/* Header */}
+        <Header
+          className="bg-blue-500 text-white px-6 flex items-center justify-between shadow-md"
+        >
+          <div className="text-xl font-semibold">Hệ thống quản lý thư viện</div>
+        </Header>
+
+        {/* Content */}
+        <Content
+          className="p-6 bg-white shadow-md"
+        >
+          <Outlet/>
+        </Content>
+
+        {/* Footer */}
+      </Layout>
+    </Layout>
+  );
+};
 
 export default MainLayout;

@@ -24,6 +24,14 @@ class EmployeeServices {
     async delete(id) {
         return (await this.api.delete(`/${id}`)).data;
     }
+
+    async login(data) {
+        return (await this.api.post(`/login`, data)).data;
+    }
+
+    async count() {
+        return (await this.api.get(`/count`)).data;
+    }
 }
 
 export default new EmployeeServices();
