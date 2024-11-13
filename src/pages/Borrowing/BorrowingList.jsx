@@ -1,64 +1,252 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
-import { PencilSquareIcon, TrashIcon, PlusIcon } from "@heroicons/react/24/outline";
-import BorrowingServices from '../../services/BorrowingServices';
+import React, { useEffect, useState } from "react";
+import { Table, Button, Space, Input, message, Modal, Tag } from "antd";
+import { PlusOutlined, CheckOutlined } from "@ant-design/icons";
+import BorrowingServices from "../../services/BorrowingServices";
+import { Link } from "react-router-dom";
+import GenericExport from "../../components/GenericExport";
+const { Search } = Input;
 
 const BorrowingList = () => {
   const [borrowings, setBorrowings] = useState([]);
-  console.log(borrowings);
+  const [filteredBorrowings, setFilteredBorrowings] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [isReturnedFilter, setIsReturnedFilter] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+
+  console.log({ borrowings });
+
   useEffect(() => {
-    BorrowingServices.getAll()
-      .then(res => setBorrowings(res.data.rows))
-      .catch(err => console.error(err));
+    fetchData();
   }, []);
 
-  const handleDelete = (id) => {
-    if (window.confirm('Bạn có chắc muốn xóa bản ghi mượn sách này?')) {
-      BorrowingServices.delete(id)
-        .then(() => setBorrowings(borrowings.filter(borrowing => borrowing.borrow_id !== id)))
-        .catch(err => console.error(err));
-    }
+  const fetchData = () => {
+    setLoading(true);
+    BorrowingServices.getAll()
+      .then((res) => {
+        const sortedBorrowings = res.data.rows.sort(
+          (a, b) => new Date(b.borrow_date) - new Date(a.borrow_date)
+        );
+        setBorrowings(sortedBorrowings);
+        setFilteredBorrowings(sortedBorrowings);
+      })
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  };
+
+  const handleReturnAllBook = (borrowId) => {
+    Modal.confirm({
+      title: "Xác nhận trả tất cả sách",
+      content:
+        "Bạn có chắc muốn đánh dấu tất cả sách trong mượn sách này là đã trả?",
+      okText: "Xác nhận",
+      cancelText: "Hủy",
+      onOk: () => {
+        BorrowingServices.returnAllBooks(borrowId)
+          .then(() => {
+            message.success("Tất cả sách đã được đánh dấu là đã trả.");
+            checkAllBooksReturned(borrowId);
+          })
+          .catch((err) => {
+            console.error(err);
+            message.error("Có lỗi xảy ra khi đánh dấu sách đã trả.");
+          });
+      },
+    });
+  };
+
+  const handleReturnBook = (borrowId, borrowDetailId) => {
+    Modal.confirm({
+      title: "Xác nhận trả sách",
+      content: "Bạn có chắc muốn đánh dấu sách này là đã trả?",
+      okText: "Xác nhận",
+      cancelText: "Hủy",
+      onOk: () => {
+        BorrowingServices.returnSingleBook(borrowDetailId)
+          .then(() => {
+            message.success("Sách đã được đánh dấu là đã trả.");
+            checkAllBooksReturned(borrowId);
+          })
+          .catch((err) => {
+            console.error(err);
+            message.error("Có lỗi xảy ra khi đánh dấu sách đã trả.");
+          });
+      },
+    });
+  };
+
+  const checkAllBooksReturned = (borrowId) => {
+    BorrowingServices.getById(borrowId).then((res) => {
+      const allReturned = res.data.BorrowingDetails.every(
+        (detail) => detail.return_date !== null
+      );
+      if (allReturned) {
+        BorrowingServices.updateStatus(borrowId, true).then(() => fetchData());
+      } else {
+        fetchData();
+      }
+    });
+  };
+
+  const handleSearch = (value) => {
+    const filtered = borrowings.filter((item) =>
+      item.card_number.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredBorrowings(filtered);
+  };
+
+  const handleFilter = (isReturned) => {
+    setIsReturnedFilter(isReturned);
+    const filtered = borrowings.filter(
+      (item) => item.is_returned === isReturned
+    );
+    setFilteredBorrowings(isReturned === null ? borrowings : filtered);
+  };
+
+  const columns = [
+    {
+      title: "ID",
+      dataIndex: "borrow_id",
+      key: "borrow_id",
+    },
+    {
+      title: "Ngày mượn",
+      dataIndex: "borrow_date",
+      key: "borrow_date",
+      render: (borrow_date) => new Date(borrow_date).toLocaleDateString(),
+    },
+    {
+      title: "Thẻ thư viện",
+      dataIndex: "card_number",
+      key: "card_number",
+      render: (_, record) => record.LibraryCard.card_number,
+    },
+    {
+      title: "Nhân viên",
+      dataIndex: "employee_id",
+      key: "employee_id",
+      render: (_, record) => record?.Employee?.full_name,
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "is_returned",
+      key: "is_returned",
+      render: (is_returned) =>
+        is_returned ? (
+          <Tag color="green">Đã trả</Tag>
+        ) : (
+          <Tag color="red">Chưa trả</Tag>
+        ),
+    },
+    {
+      title: "Hành động",
+      key: "actions",
+      render: (_, record) => (
+        <Space size="middle">
+          {!record.is_returned && (
+            <Button
+              icon={<CheckOutlined />}
+              onClick={() => handleReturnAllBook(record.borrow_id)}
+            >
+              Trả hết sách
+            </Button>
+          )}
+        </Space>
+      ),
+    },
+  ];
+
+  const expandedRowRender = (record) => {
+    const bookColumns = [
+      {
+        title: "Tên sách",
+        dataIndex: "title",
+        key: "title",
+        render: (_, detail) => detail.Book.title,
+      },
+      {
+        title: "Trạng thái",
+        dataIndex: "return_date",
+        key: "return_date",
+        render: (return_date) =>
+          return_date ? (
+            <Tag color="green">Đã trả</Tag>
+          ) : (
+            <Tag color="red">Chưa trả</Tag>
+          ),
+      },
+      {
+        title: "Số lượng",
+        dataIndex: "quantity",
+        key: "quantity",
+      },
+      {
+        title: "Hành động",
+        key: "actions",
+        render: (_, detail) =>
+          !detail.return_date && (
+            <Button
+              icon={<CheckOutlined />}
+              onClick={() =>
+                handleReturnBook(record.borrow_id, detail.borrow_detail_id)
+              }
+            >
+              Trả sách này
+            </Button>
+          ),
+      },
+    ];
+
+    return (
+      <Table
+        columns={bookColumns}
+        dataSource={record.BorrowingDetails}
+        pagination={false}
+        rowKey="borrow_detail_id"
+      />
+    );
   };
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">Danh sách Mượn sách</h2>
-        <Link to="/borrowings/new" className="bg-blue-600 text-white px-4 py-2 rounded flex items-center">
-          <PlusIcon className="h-5 w-5 mr-2" />
-          Thêm Mượn sách
+        <GenericExport collectionname={"Borrowing"} />
+        <Link to="/borrowings/new">
+          <Button type="primary" icon={<PlusOutlined />} size="large">
+            Thêm Mượn sách
+          </Button>
         </Link>
       </div>
-      <table className="min-w-full bg-white shadow-md rounded">
-        <thead className="bg-gray-800 text-white">
-          <tr>
-            <th className="py-3 px-4 uppercase font-semibold text-sm text-left">ID</th>
-            <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Ngày mượn</th>
-            <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Thẻ thư viện</th>
-            <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Nhân viên</th>
-            <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Hành động</th>
-          </tr>
-        </thead>
-        <tbody className="text-gray-700">
-          {borrowings.map(borrowing => (
-            <tr key={borrowing.borrow_id} className="hover:bg-gray-100">
-              <td className="py-3 px-4">{borrowing.borrow_id}</td>
-              <td className="py-3 px-4">{new Date(borrowing.borrow_date).toLocaleDateString()}</td>
-              <td className="py-3 px-4">{borrowing.card_number}</td>
-              <td className="py-3 px-4">{borrowing.employee_id}</td>
-              <td className="py-3 px-4 flex space-x-2">
-                <Link to={`/borrowings/edit/${borrowing.borrow_id}`} className="text-blue-600 hover:text-blue-800">
-                  <PencilSquareIcon className="h-5 w-5" />
-                </Link>
-                <button onClick={() => handleDelete(borrowing.borrow_id)} className="text-red-600 hover:text-red-800">
-                  <TrashIcon className="h-5 w-5" />
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="flex space-x-4 mb-4">
+        <Search
+          placeholder="Tìm kiếm theo thẻ thư viện"
+          onSearch={handleSearch}
+          enterButton
+        />
+        <Button onClick={() => handleFilter(null)}>Tất cả</Button>
+        <Button onClick={() => handleFilter(false)}>Chưa trả</Button>
+        <Button onClick={() => handleFilter(true)}>Đã trả</Button>
+      </div>
+      <Table
+        columns={columns}
+        dataSource={filteredBorrowings}
+        rowKey="borrow_id"
+        loading={loading}
+        pagination={{
+          current: currentPage,
+          pageSize: pageSize,
+          onChange: (page, size) => {
+            setCurrentPage(page);
+            setPageSize(size);
+          },
+        }}
+        bordered
+        expandable={{
+          expandedRowRender,
+          rowExpandable: (record) => record.BorrowingDetails.length > 0,
+        }}
+      />
     </div>
   );
 };
