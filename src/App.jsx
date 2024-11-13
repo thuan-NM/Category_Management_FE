@@ -11,13 +11,14 @@ const App = () => (
       <AppRoutes />
       <ToastContainer
           position="top-right"
-          autoClose={3000}
+          autoClose={2000}
           hideProgressBar={false}
           newestOnTop
           closeOnClick
           pauseOnFocusLoss
           draggable
           pauseOnHover
+          limit={3}
         />
     </div>
   </Router>

@@ -1,3 +1,5 @@
+// src/components/BookList.js
+
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
@@ -27,22 +29,18 @@ const BookList = () => {
     page: 1,
     limit: 10,
   });
-  const [sort, setSort] = useState({
-    sortBy: 'title',
-    order: 'asc',
-  });
 
   useEffect(() => {
     fetchBooks();
     // eslint-disable-next-line
-  }, [pagination, sort]);
+  }, [pagination]);
 
   const fetchBooks = () => {
     const params = {
       ...searchParams,
       ...pagination,
-      sortBy: sort.sortBy,
-      order: sort.order,
+      // sortBy: sort.sortBy, // Loại bỏ sortBy
+      // order: sort.order,   // Loại bỏ order
     };
   
     BookServices.getAll(params)
@@ -50,7 +48,6 @@ const BookList = () => {
         setBooks(data.rows);
         setTotalBooks(data.count);
         setError(null);
-
       })
       .catch(err => {
         console.error(err);
@@ -58,7 +55,6 @@ const BookList = () => {
         toast.error('Tìm kiếm thất bại!');
       });
   };
-  
 
   const handleDelete = (id) => {
     if (window.confirm('Bạn có chắc muốn xóa sách này?')) {
@@ -89,31 +85,8 @@ const BookList = () => {
     toast.info(`Đang chuyển đến trang ${newPage}...`);
   };
 
-  const handleSortChange = (field) => {
-    let sortField = field;
-    switch(field) {
-      case 'author':
-        sortField = 'Author.author_name';
-        break;
-      case 'genre':
-        sortField = 'Genre.genre_name';
-        break;
-      case 'publisher':
-        sortField = 'Publisher.publisher_name';
-        break;
-      default:
-        sortField = field;
-    }
-
-    setSort(prev => ({
-      sortBy: sortField,
-      order: prev.sortBy === sortField && prev.order === 'asc' ? 'desc' : 'asc',
-    }));
-    toast.info(`Đang sắp xếp theo ${field} (${sort.order === 'asc' ? 'giảm dần' : 'tăng dần'})`);
-  };
-
   const handleSearch = () => {
-    setPagination(prev => ({ ...prev, page: 1 })); // Reset to first page on new search
+    setPagination(prev => ({ ...prev, page: 1 })); // Reset về trang đầu khi tìm kiếm mới
     toast.info('Đang tìm kiếm...');
     fetchBooks();
   };
@@ -223,46 +196,28 @@ const BookList = () => {
               {/* STT */}
               <th className="py-3 px-4 uppercase font-semibold text-sm text-left">STT</th>
               {/* Title */}
-              <th 
-                className="py-3 px-4 uppercase font-semibold text-sm text-left cursor-pointer select-none" 
-                onClick={() => handleSortChange('title')}
-              >
-                Tiêu đề {sort.sortBy === 'title' && (sort.order === 'asc' ? '↑' : '↓')}
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">
+                Tiêu đề
               </th>
               {/* Author */}
-              <th 
-                className="py-3 px-4 uppercase font-semibold text-sm text-left cursor-pointer select-none" 
-                onClick={() => handleSortChange('author')}
-              >
-                Tác giả {sort.sortBy === 'Author.author_name' && (sort.order === 'asc' ? '↑' : '↓')}
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">
+                Tác giả
               </th>
               {/* Genre */}
-              <th 
-                className="py-3 px-4 uppercase font-semibold text-sm text-left cursor-pointer select-none" 
-                onClick={() => handleSortChange('genre')}
-              >
-                Thể loại {sort.sortBy === 'Genre.genre_name' && (sort.order === 'asc' ? '↑' : '↓')}
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">
+                Thể loại
               </th>
               {/* Publisher */}
-              <th 
-                className="py-3 px-4 uppercase font-semibold text-sm text-left cursor-pointer select-none" 
-                onClick={() => handleSortChange('publisher')}
-              >
-                Nhà xuất bản {sort.sortBy === 'Publisher.publisher_name' && (sort.order === 'asc' ? '↑' : '↓')}
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">
+                Nhà xuất bản
               </th>
               {/* Publication Year */}
-              <th 
-                className="py-3 px-4 uppercase font-semibold text-sm text-left cursor-pointer select-none" 
-                onClick={() => handleSortChange('publication_year')}
-              >
-                Năm xuất bản {sort.sortBy === 'publication_year' && (sort.order === 'asc' ? '↑' : '↓')}
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">
+                Năm xuất bản
               </th>
               {/* Quantity */}
-              <th 
-                className="py-3 px-4 uppercase font-semibold text-sm text-left cursor-pointer select-none" 
-                onClick={() => handleSortChange('quantity')}
-              >
-                Số lượng {sort.sortBy === 'quantity' && (sort.order === 'asc' ? '↑' : '↓')}
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">
+                Số lượng
               </th>
               {/* Actions */}
               <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Hành động</th>
