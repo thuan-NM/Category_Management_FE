@@ -39,8 +39,8 @@ const BorrowingForm = () => {
       .catch((err) => console.error(err));
 
     // Fetch all books
-    BookServices.getAll()
-      .then((res) => setBooks(res.data.rows)) // Assumed that res.data contains the book list
+    BookServices.getAll({})
+      .then((res) => setBooks(res.rows)) // Assumed that res.data contains the book list
       .catch((err) => console.error(err));
 
     // If id exists, fetch borrowing details

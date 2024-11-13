@@ -5,8 +5,8 @@ class LibraryCardServices {
         this.api = createApiClient(baseURL);
     }
 
-    async getAll(query = "") {
-        return (await this.api.get(`?${query}`)).data;
+    async getAll(params = {}) {
+        return (await this.api.get('/', { params })).data;
     }
 
     async getById(id) {
