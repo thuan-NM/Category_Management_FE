@@ -6,6 +6,7 @@ import {
     TeamOutlined,
     LogoutOutlined,
     PhoneOutlined,
+    AreaChartOutlined,
 } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -68,6 +69,11 @@ const Sidebar = () => {
             key: '7',
             icon: <BookOutlined />,
             label: <Link to="/publishers">Nhà xuất bản</Link>,
+        },
+        {
+            key: '8',
+            icon: <AreaChartOutlined />,
+            label: <Link to="/Statistics">Statistics</Link>,
         },
     ];
 
