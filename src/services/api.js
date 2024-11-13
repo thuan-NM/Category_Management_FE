@@ -48,7 +48,7 @@ const createApiClient = (baseURL) => {
                 });
 
                 // Chuyển hướng người dùng đến trang đăng nhập
-                window.location.href = "/login";
+                window.location.href = "/auth";
             }
             return Promise.reject(error);
         }

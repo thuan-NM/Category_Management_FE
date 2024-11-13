@@ -1,118 +1,155 @@
-import React, { useState, useEffect } from 'react';
+// src/components/EmployeeForm.js
+
+import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import EmployeeServices from '../../services/EmployeeServices';
+import { Button, Card, Form, Input, DatePicker, Select, message } from 'antd';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import moment from 'moment';
 
 const EmployeeForm = () => {
-  const [employee, setEmployee] = useState({
-    full_name: '',
-    birth_date: '',
-    phone_number: '',
-    parent_number: '',
-    username: '',
-    password: '',
-  });
+  const [form] = Form.useForm(); // Lấy form instance
   const navigate = useNavigate();
   const { id } = useParams();
 
   useEffect(() => {
     if (id) {
       EmployeeServices.getById(id)
-        .then(res => setEmployee(res.data))
-        .catch(err => console.error(err));
+        .then(res => {
+          if (res.status === 200 && res.data) {
+            const employeeData = res.data;
+            // Chuyển đổi birth_date thành moment object nếu có
+            if (employeeData.birth_date) {
+              employeeData.birth_date = moment(employeeData.birth_date, 'YYYY-MM-DD');
+            }
+            form.setFieldsValue(employeeData);
+          } else {
+            message.error('Không tìm thấy nhân viên!');
+            navigate('/employees');
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          message.error('Đã xảy ra lỗi khi lấy thông tin nhân viên.');
+          navigate('/employees');
+        });
     }
-  }, [id]);
+  }, [id, form, navigate]);
 
-  const handleChange = (e) => {
-    setEmployee({
-      ...employee,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = (values) => {
+    const employeeData = {
+      ...values,
+      birth_date: values.birth_date ? values.birth_date.format('YYYY-MM-DD') : '',
+    };
     if (id) {
-      EmployeeServices.update(id, employee)
-        .then(() => navigate('/employees'))
-        .catch(err => console.error(err));
+      EmployeeServices.update(id, employeeData)
+        .then(res => {
+          if (res.status === 200) {
+            message.success('Cập nhật nhân viên thành công!');
+            navigate('/employees');
+          } else {
+            message.error('Cập nhật nhân viên thất bại!');
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          message.error('Đã xảy ra lỗi khi cập nhật nhân viên.');
+        });
     } else {
-      EmployeeServices.create(employee)
-        .then(() => navigate('/employees'))
-        .catch(err => console.error(err));
+      EmployeeServices.create(employeeData)
+        .then(res => {
+          if (res.status === 201) {
+            message.success('Thêm nhân viên thành công!');
+            navigate('/employees');
+          } else {
+            message.error('Thêm nhân viên thất bại!');
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          message.error('Đã xảy ra lỗi khi thêm nhân viên.');
+        });
     }
   };
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-6">{id ? 'Chỉnh sửa Nhân viên' : 'Thêm mới Nhân viên'}</h2>
-      <form onSubmit={handleSubmit} className="bg-white p-6 shadow-md rounded">
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Họ tên</label>
-          <input
-            type="text"
+      <div style={{ marginBottom: 16 }}>
+        <Button type="link" onClick={() => navigate('/employees')} style={{ padding: 0, fontSize: 16 }}>
+          <ArrowLeftOutlined className='text-black'/> <span className='hover:underline text-black'>Quay lại</span>
+        </Button>
+      </div>
+      <Card title={id ? 'Chỉnh sửa Nhân viên' : 'Thêm mới Nhân viên'} bordered={false} style={{ maxWidth: 600, margin: '0 auto' }}>
+        <Form
+          form={form} // Bind form instance
+          layout="vertical"
+          onFinish={handleSubmit}
+        >
+          <Form.Item
+            label="Họ tên"
             name="full_name"
-            value={employee.full_name}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Ngày sinh</label>
-          <input
-            type="date"
+            rules={[{ required: true, message: 'Vui lòng nhập họ tên' }]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            label="Ngày sinh"
             name="birth_date"
-            value={employee.birth_date}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Số điện thoại</label>
-          <input
-            type="text"
+          >
+            <DatePicker format="YYYY-MM-DD" style={{ width: '100%' }} />
+          </Form.Item>
+
+          <Form.Item
+            label="Số điện thoại"
             name="phone_number"
-            value={employee.phone_number}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Số điện thoại người giám hộ</label>
-          <input
-            type="text"
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            label="Số điện thoại người giám hộ"
             name="parent_number"
-            value={employee.parent_number}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Tên đăng nhập</label>
-          <input
-            type="text"
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            label="Tên đăng nhập"
             name="username"
-            value={employee.username}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Mật khẩu</label>
-          <input
-            type="password"
-            name="password"
-            value={employee.password}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
-            required={!id}
-          />
-        </div>
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
-          {id ? 'Cập nhật' : 'Thêm mới'}
-        </button>
-      </form>
+            rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập' }]}
+          >
+            <Input disabled/>
+          </Form.Item>
+
+          <Form.Item
+            label="Chức vụ"
+            name="role"
+            rules={[{ required: true, message: 'Vui lòng điền vào chức vụ' }]}
+          >
+            <Select>
+              <Select.Option value="employee">Nhân viên</Select.Option>
+              <Select.Option value="admin">Quản trị viên</Select.Option>
+            </Select>
+          </Form.Item>
+
+          {!id && (
+            <Form.Item
+              label="Mật khẩu"
+              name="password"
+              rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}
+            >
+              <Input.Password />
+            </Form.Item>
+          )}
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
+              {id ? 'Cập nhật' : 'Thêm mới'}
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
     </div>
   );
 };
