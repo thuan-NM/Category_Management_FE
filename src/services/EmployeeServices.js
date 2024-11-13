@@ -32,6 +32,13 @@ class EmployeeServices {
     async count() {
         return (await this.api.get(`/count`)).data;
     }
+    async exportCSV(params = {}) {
+        const response = await this.api.get('/export/csv', {
+            params,
+            responseType: 'blob', // Đảm bảo rằng response là blob
+        });
+        return response.data;
+    }
 }
 
 export default new EmployeeServices();

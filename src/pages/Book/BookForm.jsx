@@ -7,13 +7,12 @@ import AuthorServices from '../../services/AuthorServices';
 import GenreServices from '../../services/GenreServices';
 import PublisherServices from '../../services/PublisherServices';
 import { toast } from 'react-toastify'; // Import toast
-import { 
-  PencilSquareIcon, 
-  TrashIcon, 
-  PlusIcon, 
-  EyeIcon, 
-  MagnifyingGlassIcon 
+import {
+  PencilSquareIcon,
+  PlusIcon,
 } from "@heroicons/react/24/outline";
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Button } from 'antd';
 
 const BookForm = () => {
   const [book, setBook] = useState({
@@ -109,137 +108,144 @@ const BookForm = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto mt-10 bg-white p-8 rounded-lg shadow-md">
-      <h2 className="text-3xl font-bold text-center mb-8 text-blue-800">
-        {id ? 'Chỉnh sửa Sách' : 'Thêm mới Sách'}
-      </h2>
+    <div>
+      <div style={{ marginBottom: 16 }}>
+        <Button type="link" onClick={() => navigate('/books')} style={{ padding: 0, fontSize: 16 }}>
+          <ArrowLeftOutlined className='text-black' /> <span className='hover:underline text-black'>Quay lại</span>
+        </Button>
+      </div>
+      <div className="max-w-3xl mx-auto mt-10 bg-white p-8 rounded-lg shadow-md">
+        <h2 className="text-3xl font-bold text-center mb-8 text-blue-800">
+          {id ? 'Chỉnh sửa Sách' : 'Thêm mới Sách'}
+        </h2>
 
-      {/* Error Message */}
-      {error && (
-        <div className="bg-red-100 text-red-700 p-4 rounded mb-4">
-          {error}
-        </div>
-      )}
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-100 text-red-700 p-4 rounded mb-4">
+            {error}
+          </div>
+        )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Tiêu đề */}
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Tiêu đề</label>
-          <input
-            type="text"
-            name="title"
-            value={book.title}
-            onChange={handleChange}
-            placeholder="Nhập tiêu đề sách"
-            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200"
-            required
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Tiêu đề */}
+          <div className="mb-4">
+            <label className="block text-gray-700 font-medium mb-2">Tiêu đề</label>
+            <input
+              type="text"
+              name="title"
+              value={book.title}
+              onChange={handleChange}
+              placeholder="Nhập tiêu đề sách"
+              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200"
+              required
+            />
+          </div>
 
-        {/* Năm xuất bản */}
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Năm xuất bản</label>
-          <input
-            type="number"
-            name="publication_year"
-            value={book.publication_year}
-            onChange={handleChange}
-            placeholder="Nhập năm xuất bản"
-            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200"
-            min="0" // Ensures publication year is non-negative
-          />
-        </div>
+          {/* Năm xuất bản */}
+          <div className="mb-4">
+            <label className="block text-gray-700 font-medium mb-2">Năm xuất bản</label>
+            <input
+              type="number"
+              name="publication_year"
+              value={book.publication_year}
+              onChange={handleChange}
+              placeholder="Nhập năm xuất bản"
+              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200"
+              min="0" // Ensures publication year is non-negative
+            />
+          </div>
 
-        {/* Tác giả */}
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Tác giả</label>
-          <select
-            name="author_id"
-            value={book.author_id}
-            onChange={handleChange}
-            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200"
-            required
+          {/* Tác giả */}
+          <div className="mb-4">
+            <label className="block text-gray-700 font-medium mb-2">Tác giả</label>
+            <select
+              name="author_id"
+              value={book.author_id}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200"
+              required
+            >
+              <option value="">Chọn tác giả</option>
+              {authors.map((author) => (
+                <option key={author.author_id} value={author.author_id}>
+                  {author.author_name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Thể loại */}
+          <div className="mb-4">
+            <label className="block text-gray-700 font-medium mb-2">Thể loại</label>
+            <select
+              name="genre_id"
+              value={book.genre_id}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200"
+              required
+            >
+              <option value="">Chọn thể loại</option>
+              {genres.map((genre) => (
+                <option key={genre.genre_id} value={genre.genre_id}>
+                  {genre.genre_name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Nhà xuất bản */}
+          <div className="mb-4">
+            <label className="block text-gray-700 font-medium mb-2">Nhà xuất bản</label>
+            <select
+              name="publisher_id"
+              value={book.publisher_id}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200"
+              required
+            >
+              <option value="">Chọn nhà xuất bản</option>
+              {publishers.map((publisher) => (
+                <option key={publisher.publisher_id} value={publisher.publisher_id}>
+                  {publisher.publisher_name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Số lượng */}
+          <div className="mb-4">
+            <label className="block text-gray-700 font-medium mb-2">Số lượng</label>
+            <input
+              type="number"
+              name="quantity"
+              value={book.quantity}
+              onChange={handleChange}
+              placeholder="Nhập số lượng sách"
+              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200"
+              required
+              min="0" // Ensures quantity is non-negative
+            />
+          </div>
+
+          {/* Submit button */}
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-lg transition duration-200 flex items-center justify-center"
           >
-            <option value="">Chọn tác giả</option>
-            {authors.map((author) => (
-              <option key={author.author_id} value={author.author_id}>
-                {author.author_name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Thể loại */}
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Thể loại</label>
-          <select
-            name="genre_id"
-            value={book.genre_id}
-            onChange={handleChange}
-            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200"
-            required
-          >
-            <option value="">Chọn thể loại</option>
-            {genres.map((genre) => (
-              <option key={genre.genre_id} value={genre.genre_id}>
-                {genre.genre_name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Nhà xuất bản */}
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Nhà xuất bản</label>
-          <select
-            name="publisher_id"
-            value={book.publisher_id}
-            onChange={handleChange}
-            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200"
-            required
-          >
-            <option value="">Chọn nhà xuất bản</option>
-            {publishers.map((publisher) => (
-              <option key={publisher.publisher_id} value={publisher.publisher_id}>
-                {publisher.publisher_name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Số lượng */}
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Số lượng</label>
-          <input
-            type="number"
-            name="quantity"
-            value={book.quantity}
-            onChange={handleChange}
-            placeholder="Nhập số lượng sách"
-            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200"
-            required
-            min="0" // Ensures quantity is non-negative
-          />
-        </div>
-
-        {/* Submit button */}
-        <button
-          type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-lg transition duration-200 flex items-center justify-center"
-        >
-          {id ? (
-            <>
-              <PencilSquareIcon className="h-5 w-5 mr-2" />
-              Cập nhật
-            </>
-          ) : (
-            <>
-              <PlusIcon className="h-5 w-5 mr-2" />
-              Thêm mới
-            </>
-          )}
-        </button>
-      </form>
+            {id ? (
+              <>
+                <PencilSquareIcon className="h-5 w-5 mr-2" />
+                Cập nhật
+              </>
+            ) : (
+              <>
+                <PlusIcon className="h-5 w-5 mr-2" />
+                Thêm mới
+              </>
+            )}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

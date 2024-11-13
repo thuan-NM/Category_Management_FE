@@ -2,15 +2,16 @@
 
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  PencilSquareIcon, 
-  TrashIcon, 
-  PlusIcon, 
-  EyeIcon, 
-  MagnifyingGlassIcon 
+import {
+  PencilSquareIcon,
+  TrashIcon,
+  PlusIcon,
+  EyeIcon,
+  MagnifyingGlassIcon
 } from "@heroicons/react/24/outline";
 import BookServices from '../../services/BookServices';
 import { toast } from 'react-toastify'; // Import toast
+import GenericExport from '../../components/GenericExport';
 
 const BookList = () => {
   const [books, setBooks] = useState([]);
@@ -42,7 +43,7 @@ const BookList = () => {
       // sortBy: sort.sortBy, // Loại bỏ sortBy
       // order: sort.order,   // Loại bỏ order
     };
-  
+
     BookServices.getAll(params)
       .then(data => {
         setBooks(data.rows);
@@ -94,12 +95,15 @@ const BookList = () => {
   return (
     <div className="p-4">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6">
+      <div className="flex flex-col md:flex-row !justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold">Danh sách Sách</h2>
-        <Link to="/books/new" className="mt-4 md:mt-0 bg-blue-600 text-white px-4 py-2 rounded flex items-center hover:bg-blue-700 transition duration-200">
-          <PlusIcon className="h-5 w-5 mr-2" />
-          Thêm Sách
-        </Link>
+        <div className="flex space-x-2">
+          <Link to="/books/new" className="bg-blue-600 text-white px-4 py-2 rounded flex items-center hover:bg-blue-700 transition duration-200">
+            <PlusIcon className="h-5 w-5 mr-2" />
+            Thêm Sách
+          </Link>
+          <GenericExport collectionname={"Book"} />
+        </div>
       </div>
 
       {/* Error Message */}
@@ -178,8 +182,8 @@ const BookList = () => {
         </div>
         {/* Search Button */}
         <div className="flex items-center">
-          <button 
-            onClick={handleSearch} 
+          <button
+            onClick={handleSearch}
             className="w-full bg-green-600 text-white px-4 py-2 rounded flex items-center justify-center hover:bg-green-700 transition duration-200"
           >
             <MagnifyingGlassIcon className="h-5 w-5 mr-2" />
@@ -235,9 +239,6 @@ const BookList = () => {
                   <td className="py-3 px-4">{book.publication_year || 'N/A'}</td>
                   <td className="py-3 px-4">{book.quantity || 0}</td>
                   <td className="py-3 px-4 flex space-x-2">
-                    <Link to={`/books/view/${book.book_id}`} className="text-blue-600 hover:text-blue-800">
-                      <EyeIcon className="h-5 w-5" />
-                    </Link>
                     <Link to={`/books/edit/${book.book_id}`} className="text-yellow-600 hover:text-yellow-800">
                       <PencilSquareIcon className="h-5 w-5" />
                     </Link>
@@ -266,22 +267,20 @@ const BookList = () => {
         </div>
         {/* Pagination Buttons */}
         <div className="flex space-x-2 mt-2 md:mt-0">
-          <button 
-            onClick={() => handlePageChange(pagination.page - 1)} 
+          <button
+            onClick={() => handlePageChange(pagination.page - 1)}
             disabled={pagination.page === 1}
-            className={`px-3 py-1 rounded ${
-              pagination.page === 1 ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 transition duration-200'
-            }`}
+            className={`px-3 py-1 rounded ${pagination.page === 1 ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 transition duration-200'
+              }`}
           >
             Trước
           </button>
           <span className="px-3 py-1">{pagination.page}</span>
-          <button 
-            onClick={() => handlePageChange(pagination.page + 1)} 
+          <button
+            onClick={() => handlePageChange(pagination.page + 1)}
             disabled={pagination.page * pagination.limit >= totalBooks}
-            className={`px-3 py-1 rounded ${
-              pagination.page * pagination.limit >= totalBooks ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 transition duration-200'
-            }`}
+            className={`px-3 py-1 rounded ${pagination.page * pagination.limit >= totalBooks ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 transition duration-200'
+              }`}
           >
             Sau
           </button>

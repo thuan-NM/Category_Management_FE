@@ -3,9 +3,10 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import EmployeeServices from '../../services/EmployeeServices';
-import { Button, Card, Form, Input, DatePicker, Select, message } from 'antd';
+import { Button, Card, Form, Input, DatePicker, Select } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import moment from 'moment';
+import { toast } from 'react-toastify'; // Import toast từ react-toastify
 
 const EmployeeForm = () => {
   const [form] = Form.useForm(); // Lấy form instance
@@ -24,13 +25,13 @@ const EmployeeForm = () => {
             }
             form.setFieldsValue(employeeData);
           } else {
-            message.error('Không tìm thấy nhân viên!');
+            toast.error('Không tìm thấy nhân viên!');
             navigate('/employees');
           }
         })
         .catch(err => {
           console.error(err);
-          message.error('Đã xảy ra lỗi khi lấy thông tin nhân viên.');
+          toast.error('Đã xảy ra lỗi khi lấy thông tin nhân viên.');
           navigate('/employees');
         });
     }
@@ -45,29 +46,29 @@ const EmployeeForm = () => {
       EmployeeServices.update(id, employeeData)
         .then(res => {
           if (res.status === 200) {
-            message.success('Cập nhật nhân viên thành công!');
+            toast.success('Cập nhật nhân viên thành công!');
             navigate('/employees');
           } else {
-            message.error('Cập nhật nhân viên thất bại!');
+            toast.error('Cập nhật nhân viên thất bại!');
           }
         })
         .catch(err => {
           console.error(err);
-          message.error('Đã xảy ra lỗi khi cập nhật nhân viên.');
+          toast.error('Đã xảy ra lỗi khi cập nhật nhân viên.');
         });
     } else {
       EmployeeServices.create(employeeData)
         .then(res => {
           if (res.status === 201) {
-            message.success('Thêm nhân viên thành công!');
+            toast.success('Thêm nhân viên thành công!');
             navigate('/employees');
           } else {
-            message.error('Thêm nhân viên thất bại!');
+            toast.error('Thêm nhân viên thất bại!');
           }
         })
         .catch(err => {
           console.error(err);
-          message.error('Đã xảy ra lỗi khi thêm nhân viên.');
+          toast.error('Đã xảy ra lỗi khi thêm nhân viên.');
         });
     }
   };
@@ -76,10 +77,14 @@ const EmployeeForm = () => {
     <div>
       <div style={{ marginBottom: 16 }}>
         <Button type="link" onClick={() => navigate('/employees')} style={{ padding: 0, fontSize: 16 }}>
-          <ArrowLeftOutlined className='text-black'/> <span className='hover:underline text-black'>Quay lại</span>
+          <ArrowLeftOutlined className='text-black' /> <span className='hover:underline text-black'>Quay lại</span>
         </Button>
       </div>
-      <Card title={id ? 'Chỉnh sửa Nhân viên' : 'Thêm mới Nhân viên'} bordered={false} style={{ maxWidth: 600, margin: '0 auto' }}>
+      <Card bordered={false} className='max-w-3xl mx-auto bg-white p-8 !rounded-lg !shadow-md'>
+        <h2 className="text-3xl font-bold text-center mb-8 text-blue-800">
+          {id ? 'Chỉnh sửa Nhân viên' : 'Thêm mới Nhân viên'}
+        </h2>
+
         <Form
           form={form} // Bind form instance
           layout="vertical"
@@ -119,7 +124,7 @@ const EmployeeForm = () => {
             name="username"
             rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập' }]}
           >
-            <Input disabled/>
+            <Input disabled />
           </Form.Item>
 
           <Form.Item
