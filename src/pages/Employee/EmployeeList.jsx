@@ -2,16 +2,19 @@
 
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  PencilSquareIcon, 
-  TrashIcon, 
-  PlusIcon, 
+import {
+  PencilSquareIcon,
+  TrashIcon,
+  PlusIcon,
   EyeIcon,
-  MagnifyingGlassIcon 
+  MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
+import { DownloadOutlined } from '@ant-design/icons';
 import EmployeeServices from '../../services/EmployeeServices';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { saveAs } from 'file-saver'; // Import file-saver
+import GenericExport from '../../components/GenericExport';
 
 const EmployeeList = () => {
   const [employees, setEmployees] = useState([]);
@@ -83,16 +86,33 @@ const EmployeeList = () => {
     fetchEmployees();
   };
 
+  const handleExportCSV = async () => {
+    try {
+      const params = {
+        ...searchParams,
+        ...pagination,
+      };
+      const blob = await EmployeeServices.exportCSV(params);
+      saveAs(blob, 'employees.csv');
+      toast.success('Xuất CSV thành công!');
+    } catch (err) {
+      console.error(err);
+      toast.error('Xuất CSV thất bại!');
+    }
+  };
+
   return (
     <div className="p-4">
-      <ToastContainer />
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold">Danh sách Nhân viên</h2>
-        <Link to="/employees/new" className="mt-4 md:mt-0 bg-blue-600 text-white px-4 py-2 rounded flex items-center hover:bg-blue-700 transition duration-200">
-          <PlusIcon className="h-5 w-5 mr-2" />
-          Thêm Nhân viên
-        </Link>
+        <div className="flex space-x-2">
+          <Link to="/employees/new" className="bg-blue-600 text-white px-4 py-2 rounded flex items-center hover:bg-blue-700 transition duration-200">
+            <PlusIcon className="h-5 w-5 mr-2" />
+            Thêm Nhân viên
+          </Link>
+          <GenericExport collectionname={"Employee"} />
+        </div>
       </div>
 
       {/* Error Message */}
@@ -124,8 +144,8 @@ const EmployeeList = () => {
         />
         {/* Search Button */}
         <div className="flex items-center">
-          <button 
-            onClick={handleSearch} 
+          <button
+            onClick={handleSearch}
             className="w-full bg-green-600 text-white px-4 py-2 rounded flex items-center justify-center hover:bg-green-700 transition duration-200"
           >
             <MagnifyingGlassIcon className="h-5 w-5 mr-2" />
@@ -150,7 +170,6 @@ const EmployeeList = () => {
               {/* Username */}
               <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Username</th>
               {/* Actions */}
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Chức vụ</th>
               <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Hành động</th>
             </tr>
           </thead>
@@ -163,7 +182,6 @@ const EmployeeList = () => {
                   <td className="py-3 px-4">{employee.birth_date ? new Date(employee.birth_date).toLocaleDateString() : 'N/A'}</td>
                   <td className="py-3 px-4">{employee.phone_number || 'N/A'}</td>
                   <td className="py-3 px-4">{employee.username || 'N/A'}</td>
-                  <td className="py-3 px-4">{(employee.role == "admin"?"Quản trị viên":"Nhân viên") || 'N/A'}</td>
                   <td className="py-3 px-4 flex space-x-2">
                     <Link to={`/employees/edit/${employee.employee_id}`} className="text-yellow-600 hover:text-yellow-800">
                       <PencilSquareIcon className="h-5 w-5" />
@@ -193,22 +211,20 @@ const EmployeeList = () => {
         </div>
         {/* Pagination Buttons */}
         <div className="flex space-x-2 mt-2 md:mt-0">
-          <button 
-            onClick={() => handlePageChange(pagination.page - 1)} 
+          <button
+            onClick={() => handlePageChange(pagination.page - 1)}
             disabled={pagination.page === 1}
-            className={`px-3 py-1 rounded ${
-              pagination.page === 1 ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 transition duration-200'
-            }`}
+            className={`px-3 py-1 rounded ${pagination.page === 1 ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 transition duration-200'
+              }`}
           >
             Trước
           </button>
           <span className="px-3 py-1">{pagination.page}</span>
-          <button 
-            onClick={() => handlePageChange(pagination.page + 1)} 
+          <button
+            onClick={() => handlePageChange(pagination.page + 1)}
             disabled={pagination.page * pagination.limit >= totalEmployees}
-            className={`px-3 py-1 rounded ${
-              pagination.page * pagination.limit >= totalEmployees ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 transition duration-200'
-            }`}
+            className={`px-3 py-1 rounded ${pagination.page * pagination.limit >= totalEmployees ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 transition duration-200'
+              }`}
           >
             Sau
           </button>
