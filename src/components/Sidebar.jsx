@@ -35,39 +35,39 @@ const Sidebar = () => {
         {
             key: '1',
             icon: <TeamOutlined />,
-            label: <Link to="/authors">Authors</Link>,
+            label: <Link to="/authors">Tác giả</Link>,
         },
         {
             key: '2',
             icon: <BookOutlined />,
-            label: <Link to="/books">Books</Link>,
+            label: <Link to="/books">Sách</Link>,
         },
         {
             key: '3',
             icon: <BookOutlined />,
-            label: <Link to="/borrowings">Borrowings</Link>,
+            label: <Link to="/borrowings">Mượn sách</Link>,
         },
         ...(userInfo?.role === 'admin' ? [
             {
                 key: '4',
                 icon: <TeamOutlined />,
-                label: <Link to="/employees">Employees</Link>,
+                label: <Link to="/employees">Nhân viên</Link>,
             },
         ] : []),
         {
             key: '5',
             icon: <BookOutlined />,
-            label: <Link to="/genres">Genres</Link>,
+            label: <Link to="/genres">Thể loại</Link>,
         },
         {
             key: '6',
             icon: <BookOutlined />,
-            label: <Link to="/librarycards">Library Cards</Link>,
+            label: <Link to="/librarycards">Thẻ thư viện</Link>,
         },
         {
             key: '7',
             icon: <BookOutlined />,
-            label: <Link to="/publishers">Publishers</Link>,
+            label: <Link to="/publishers">Nhà xuất bản</Link>,
         },
     ];
 
