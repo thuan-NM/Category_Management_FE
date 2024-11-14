@@ -11,7 +11,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { DownloadOutlined } from '@ant-design/icons';
 import EmployeeServices from '../../services/EmployeeServices';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { saveAs } from 'file-saver'; // Import file-saver
 import GenericExport from '../../components/GenericExport';
@@ -160,17 +160,17 @@ const EmployeeList = () => {
           <thead className="bg-gray-800 text-white">
             <tr>
               {/* STT */}
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">STT</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">STT</th>
               {/* Full Name */}
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Họ tên</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">Họ tên</th>
               {/* Birth Date */}
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Ngày sinh</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">Ngày sinh</th>
               {/* Phone Number */}
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Số điện thoại</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">Số điện thoại</th>
               {/* Username */}
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Username</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">Username</th>
               {/* Actions */}
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Hành động</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center">Hành động</th>
             </tr>
           </thead>
           <tbody className="text-gray-700">
@@ -182,7 +182,7 @@ const EmployeeList = () => {
                   <td className="py-3 px-4">{employee.birth_date ? new Date(employee.birth_date).toLocaleDateString() : 'N/A'}</td>
                   <td className="py-3 px-4">{employee.phone_number || 'N/A'}</td>
                   <td className="py-3 px-4">{employee.username || 'N/A'}</td>
-                  <td className="py-3 px-4 flex space-x-2">
+                  <td className="py-3 px-4 flex space-x-2 justify-center">
                     <Link to={`/employees/edit/${employee.employee_id}`} className="text-yellow-600 hover:text-yellow-800">
                       <PencilSquareIcon className="h-5 w-5" />
                     </Link>

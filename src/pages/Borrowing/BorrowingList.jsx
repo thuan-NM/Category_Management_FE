@@ -203,6 +203,7 @@ const BorrowingList = () => {
         dataSource={record.BorrowingDetails}
         pagination={false}
         rowKey="borrow_detail_id"
+        
       />
     );
   };
@@ -248,6 +249,7 @@ const BorrowingList = () => {
           expandedRowRender,
           rowExpandable: (record) => record.BorrowingDetails.length > 0,
         }}
+        className="custom-ant-table"
       />
     </div>
   );

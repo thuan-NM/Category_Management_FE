@@ -198,33 +198,33 @@ const BookList = () => {
           <thead className="bg-gray-800 text-white">
             <tr>
               {/* STT */}
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">STT</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">STT</th>
               {/* Title */}
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">
                 Tiêu đề
               </th>
               {/* Author */}
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">
                 Tác giả
               </th>
               {/* Genre */}
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">
                 Thể loại
               </th>
               {/* Publisher */}
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">
                 Nhà xuất bản
               </th>
               {/* Publication Year */}
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">
                 Năm xuất bản
               </th>
               {/* Quantity */}
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">
                 Số lượng
               </th>
               {/* Actions */}
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Hành động</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center">Hành động</th>
             </tr>
           </thead>
           <tbody className="text-gray-700">
@@ -238,7 +238,7 @@ const BookList = () => {
                   <td className="py-3 px-4">{book.Publisher ? book.Publisher.publisher_name : 'N/A'}</td>
                   <td className="py-3 px-4">{book.publication_year || 'N/A'}</td>
                   <td className="py-3 px-4">{book.quantity || 0}</td>
-                  <td className="py-3 px-4 flex space-x-2">
+                  <td className="py-3 px-4 flex space-x-2 justify-center">
                     <Link to={`/books/edit/${book.book_id}`} className="text-yellow-600 hover:text-yellow-800">
                       <PencilSquareIcon className="h-5 w-5" />
                     </Link>
