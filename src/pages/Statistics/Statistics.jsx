@@ -1,23 +1,22 @@
-// src/components/Statistics.jsx
-
 import React, { useEffect, useState, useRef } from 'react';
 import { Select, Card, Skeleton, message, Button } from 'antd';
-import { Line, Bar } from '@ant-design/charts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, BarChart, Bar, ResponsiveContainer } from 'recharts';
 import BorrowingServices from '../../services/BorrowingServices';
 import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 const { Option } = Select;
 
 function Statistics() {
   const [loadingBorrowing, setLoadingBorrowing] = useState(false);
   const [loadingTopBooks, setLoadingTopBooks] = useState(false);
-  const [timeInterval, setTimeInterval] = useState('week'); // Set default to 'week'
+  const [timeInterval, setTimeInterval] = useState('week');
   const [borrowingData, setBorrowingData] = useState([]);
   const [topBooksData, setTopBooksData] = useState([]);
 
-  // Thêm các ref để tham chiếu đến các container div
-  const borrowingChartContainerRef = useRef(null);
-  const topBooksChartContainerRef = useRef(null);
+  // Tham chiếu đến các thẻ chứa biểu đồ để xuất hình
+  const borrowingChartRef = useRef(null);
+  const topBooksChartRef = useRef(null);
 
   useEffect(() => {
     fetchBorrowingStatistics(timeInterval);
@@ -31,19 +30,12 @@ function Statistics() {
     setLoadingBorrowing(true);
     try {
       const res = await BorrowingServices.getStatistics(interval);
-      console.log('Borrowing Statistics:', res);
       const validData = res
-        .filter(
-          (item) =>
-            item.time &&
-            typeof item.borrow_count === 'number' &&
-            !isNaN(item.borrow_count)
-        )
-        .map((item) => ({
+        .filter(item => item && item.time && typeof item.borrow_count === 'number' && !isNaN(item.borrow_count))
+        .map(item => ({
           time: item.time,
-          borrow_count: parseInt(item.borrow_count, 10),
+          borrow_count: item.borrow_count !== null ? parseInt(item.borrow_count, 10) : 0,
         }));
-      console.log('Borrowing Data:', validData); // Kiểm tra dữ liệu
       setBorrowingData(validData);
     } catch (err) {
       console.error('Error fetching borrowing statistics:', err);
@@ -57,12 +49,10 @@ function Statistics() {
     setLoadingTopBooks(true);
     try {
       const res = await BorrowingServices.getTopBorrowedBooks(10);
-      console.log('Top Borrowed Books:', res);
       const processedData = res.map((item) => ({
-        title: item.Book?.title || 'Không rõ', // Sử dụng Optional Chaining để tránh lỗi
+        title: item.Book?.title || 'Không rõ',
         total_borrowed: parseInt(item.total_borrowed, 10),
       }));
-      console.log('Top Books Data:', processedData); // Kiểm tra dữ liệu
       setTopBooksData(processedData);
     } catch (err) {
       console.error('Error fetching top borrowed books:', err);
@@ -82,195 +72,28 @@ function Statistics() {
     setTimeInterval(value);
   };
 
-  const borrowingChartConfig = {
-    data: borrowingData,
-    xField: 'time',
-    yField: 'borrow_count',
-    xAxis: {
-      label: {
-        autoRotate: true,
-      },
-      title: {
-        text: 'Thời gian',
-      },
-    },
-    yAxis: {
-      title: {
-        text: 'Số lượt mượn sách',
-      },
-    },
-    smooth: true,
-    lineStyle: {
-      stroke: '#1890ff',
-      lineWidth: 2,
-    },
-    height: 300,
-    point: {
-      size: 5,
-      shape: 'circle',
-      style: {
-        fill: '#1890ff',
-        stroke: '#fff',
-        lineWidth: 2,
-      },
-    },
-    tooltip: {
-      showMarkers: true,
-      background: {
-        fill: '#ffffff',
-        stroke: '#d9d9d9',
-        radius: 4,
-      },
-      titleStyle: {
-        fill: '#000000',
-        fontSize: 14,
-        fontWeight: 'bold',
-      },
-      itemTpl: `
-        <div style="padding: 4px 8px;">
-          <strong>{name}</strong>: {value}
-        </div>
-      `,
-      formatter: (datum) => ({
-        name: 'Số lượt mượn',
-        value: datum.borrow_count,
-      }),
-    },
-    animation: {
-      appear: {
-        animation: 'path-in',
-        duration: 1000,
-      },
-    },
-    background: {
-      fill: '#ffffff', // Đặt màu nền cho biểu đồ
-    },
-    onReady: (plot) => {
-      // Không cần lưu plot vào ref khi sử dụng html2canvas
-      console.log('Borrowing Chart Instance:', plot); // Kiểm tra đối tượng chart
-    },
-  };
-
-  const topBooksChartConfig = {
-    data: topBooksData,
-    xField: 'title',
-    yField: 'total_borrowed',
-    xAxis: {
-      label: {
-        autoRotate: true,
-        rotate: Math.PI / 6,
-        offset: 10,
-      },
-      title: {
-        text: 'Tên sách',
-      },
-    },
-    yAxis: {
-      title: {
-        text: 'Tổng số lần mượn',
-      },
-    },
-    height: 300,
-    tooltip: {
-      showMarkers: true,
-      background: {
-        fill: '#ffffff',
-        stroke: '#d9d9d9',
-        radius: 4,
-      },
-      titleStyle: {
-        fill: '#000000',
-        fontSize: 14,
-        fontWeight: 'bold',
-      },
-      itemTpl: `
-        <div style="padding: 4px 8px;">
-          <strong>{name}</strong>: {value}
-        </div>
-      `,
-      formatter: (datum) => ({
-        name: 'Tổng số lần mượn',
-        value: datum.total_borrowed,
-      }),
-    },
-    label: {
-      position: 'top',
-      style: {
-        fill: '#595959',
-        fontSize: 12,
-      },
-      layout: [
-        {
-          type: 'adjust-color',
-        },
-      ],
-    },
-    barStyle: {
-      fill: '#1890ff', // Đặt màu sắc cho các cột
-      radius: [4, 4, 0, 0], // Bo góc cho các cột
-    },
-    animation: {
-      appear: {
-        animation: 'scale-in-y',
-        duration: 1000,
-      },
-    },
-    background: {
-      fill: '#ffffff', // Đặt màu nền cho biểu đồ
-    },
-    onReady: (plot) => {
-      // Không cần lưu plot vào ref khi sử dụng html2canvas
-      console.log('Top Books Chart Instance:', plot); // Kiểm tra đối tượng chart
-    },
-  };
-
-  const handleExport = async () => {
+  const handleExportCharts = async () => {
     try {
-      // Sử dụng html2canvas để xuất hình ảnh
-      await handleExportWithHtml2Canvas();
+      const borrowingCanvas = await html2canvas(borrowingChartRef.current, { useCORS: true });
+      const topBooksCanvas = await html2canvas(topBooksChartRef.current, { useCORS: true });
+
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const borrowingImgData = borrowingCanvas.toDataURL('image/png');
+      const topBooksImgData = topBooksCanvas.toDataURL('image/png');
+
+      // Thêm biểu đồ dòng vào PDF
+      pdf.addImage(borrowingImgData, 'PNG', 10, 10, 190, 80);
+
+      // Thêm biểu đồ cột vào PDF, kiểm tra nếu cần thêm trang mới
+      pdf.addPage();
+      pdf.addImage(topBooksImgData, 'PNG', 10, 10, 190, 80);
+
+      // Xuất PDF
+      pdf.save('thong_ke_muon_sach.pdf');
+
+      message.success('Đã xuất thành công biểu đồ thành PDF!');
     } catch (error) {
       console.error('Error exporting charts:', error);
-      message.error('Đã xảy ra lỗi khi xuất biểu đồ.');
-    }
-  };
-
-  const handleExportWithHtml2Canvas = async () => {
-    try {
-      // Xuất Line Chart
-      if (borrowingChartContainerRef.current) {
-        const canvas = await html2canvas(borrowingChartContainerRef.current, {
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: '#ffffff', // Đặt màu nền cho canvas
-        });
-        const imgData = canvas.toDataURL('image/png');
-        const link = document.createElement('a');
-        link.href = imgData;
-        link.download = 'borrowing_chart.png';
-        link.click();
-      } else {
-        console.warn('Không tìm thấy borrowingChartContainerRef.current');
-      }
-
-      // Xuất Bar Chart
-      if (topBooksChartContainerRef.current) {
-        const canvas = await html2canvas(topBooksChartContainerRef.current, {
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: '#ffffff', // Đặt màu nền cho canvas
-        });
-        const imgData = canvas.toDataURL('image/png');
-        const link = document.createElement('a');
-        link.href = imgData;
-        link.download = 'top_books_chart.png';
-        link.click();
-      } else {
-        console.warn('Không tìm thấy topBooksChartContainerRef.current');
-      }
-
-      message.success('Đã xuất thành công các biểu đồ!');
-    } catch (error) {
-      console.error('Error exporting charts with html2canvas:', error);
       message.error('Đã xảy ra lỗi khi xuất biểu đồ.');
     }
   };
@@ -290,36 +113,47 @@ function Statistics() {
             </Option>
           ))}
         </Select>
-        <Button type="primary" onClick={handleExport}>
-          Xuất Hình Ảnh Biểu Đồ
+        <Button type="primary" onClick={handleExportCharts}>
+          Xuất Biểu Đồ Thành PDF
         </Button>
       </div>
+
+      {/* Line Chart for Borrowing Statistics */}
       <Card
-        title={`Số lượt mượn sách theo ${
-          timeInterval === 'week'
-            ? 'Tuần'
-            : timeInterval === 'month'
-            ? 'Tháng'
-            : 'Năm'
-        }`}
+        title={`Số lượt mượn sách theo ${timeInterval === 'week' ? 'Tuần' : timeInterval === 'month' ? 'Tháng' : 'Năm'}`}
         bordered={false}
         style={{
           borderRadius: 8,
           boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
           marginBottom: '24px',
-          backgroundColor: '#ffffff', // Đặt màu nền cho Card
+          backgroundColor: '#ffffff',
+          width: '100%',
         }}
       >
-        <div ref={borrowingChartContainerRef}>
+        <div ref={borrowingChartRef} style={{ width: '100%', height: 500 }}>
           {loadingBorrowing ? (
             <Skeleton active />
           ) : borrowingData.length === 0 ? (
             <p>Không có dữ liệu để hiển thị.</p>
           ) : (
-            <Line {...borrowingChartConfig} />
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={borrowingData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid stroke="#f5f5f5" />
+                <XAxis dataKey="time" />
+                <YAxis />
+                <Tooltip formatter={(value) => (value !== null ? value : 'Không có dữ liệu')} />
+                <Legend />
+                <Line type="monotone" dataKey="borrow_count" stroke="#ff7300" />
+              </LineChart>
+            </ResponsiveContainer>
           )}
         </div>
       </Card>
+
+      {/* Bar Chart for Top Borrowed Books */}
       <div className="mt-10">
         <h2 className="text-3xl font-semibold mb-6">Top sách được mượn nhiều nhất</h2>
         <Card
@@ -328,16 +162,36 @@ function Statistics() {
           style={{
             borderRadius: 8,
             boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-            backgroundColor: '#ffffff', // Đặt màu nền cho Card
+            backgroundColor: '#ffffff',
+            width: '100%',
           }}
         >
-          <div ref={topBooksChartContainerRef}>
+          <div ref={topBooksChartRef} style={{ width: '100%', height: 500 }}>
             {loadingTopBooks ? (
               <Skeleton active />
             ) : topBooksData.length === 0 ? (
               <p>Không có dữ liệu để hiển thị.</p>
             ) : (
-              <Bar {...topBooksChartConfig} />
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={topBooksData}
+                  margin={{ top: 20, right: 30, left: 20, bottom:100 }}
+                >
+                  <CartesianGrid stroke="#f5f5f5" />
+                  <XAxis
+                    dataKey="title"
+                    tick={{ fontSize: 10 }} // Điều chỉnh kích thước chữ
+                    interval={0} // Hiển thị tất cả các nhãn
+                    angle={-30} // Xoay nhãn để vừa với chiều rộng
+                    textAnchor="end" // Đặt góc xoay ở cuối nhãn
+                  />
+                  <YAxis />
+                  <Tooltip formatter={(value) => (value !== null ? value : 'Không có dữ liệu')} />
+                  <Legend />
+                  <Bar dataKey="total_borrowed" fill="#8884d8" />
+                </BarChart>
+              </ResponsiveContainer>
+
             )}
           </div>
         </Card>
