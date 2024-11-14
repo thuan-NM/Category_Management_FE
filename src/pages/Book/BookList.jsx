@@ -37,12 +37,19 @@ const BookList = () => {
   }, [pagination]);
 
   const fetchBooks = () => {
-    const params = {
+    // Tạo một object chứa các tham số cần thiết
+    let params = {
       ...searchParams,
-      ...pagination,
-      // sortBy: sort.sortBy, // Loại bỏ sortBy
-      // order: sort.order,   // Loại bỏ order
     };
+
+    // Chỉ thêm phân trang nếu limit có giá trị hợp lệ
+    if (pagination.limit && parseInt(pagination.limit) > 0) {
+      params = {
+        ...params,
+        page: pagination.page,
+        limit: pagination.limit,
+      };
+    }
 
     BookServices.getAll(params)
       .then(data => {
