@@ -19,16 +19,24 @@ const LibraryCardList = () => {
   const [cards, setCards] = useState([]);
   const [totalCards, setTotalCards] = useState(0);
   const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+  });
 
   useEffect(() => {
     fetchLibraryCards();
     // eslint-disable-next-line
-  }, []);
+  }, [pagination]);
 
-  const fetchLibraryCards = async (search = '') => {
+  const fetchLibraryCards = async (search = "") => {
     try {
-      const params = {};
+      const params = {
+        search,
+        page: pagination.page,
+        limit: pagination.limit,
+      };
       if (search) {
         params.search = search;
         toast.info("Đang tìm kiếm...");
@@ -43,29 +51,35 @@ const LibraryCardList = () => {
       }
     } catch (err) {
       console.error(err);
-      setError('Không thể tải dữ liệu thẻ thư viện.');
-      toast.error('Không thể tải dữ liệu thẻ thư viện.');
+      setError("Không thể tải dữ liệu thẻ thư viện.");
+      toast.error("Không thể tải dữ liệu thẻ thư viện.");
     }
   };
 
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || (newPage - 1) * pagination.limit >= totalCards) return;
+    setPagination((prev) => ({ ...prev, page: newPage }));
+    toast.info(`Đang chuyển đến trang ${newPage}...`);
+  };
+
   const handleDelete = async (cardNumber) => {
-    if (window.confirm('Bạn có chắc muốn xóa thẻ thư viện này?')) {
+    if (window.confirm("Bạn có chắc muốn xóa thẻ thư viện này?")) {
       try {
         toast.info("Đang xóa thẻ thư viện...");
         await LibraryCardServices.delete(cardNumber);
-        setCards(cards.filter(card => card.card_number !== cardNumber));
-        setTotalCards(prev => prev - 1);
-        toast.success('Xóa thẻ thư viện thành công!');
+        setCards(cards.filter((card) => card.card_number !== cardNumber));
+        setTotalCards((prev) => prev - 1);
+        toast.success("Xóa thẻ thư viện thành công!");
       } catch (err) {
         console.error(err);
-        setError('Xóa thẻ thư viện thất bại.');
-        toast.error('Xóa thẻ thư viện thất bại.');
+        setError("Xóa thẻ thư viện thất bại.");
+        toast.error("Xóa thẻ thư viện thất bại.");
       }
     }
   };
 
   const handleUnlock = async (cardNumber) => {
-    if (window.confirm('Bạn có chắc muốn mở khóa thẻ thư viện này?')) {
+    if (window.confirm("Bạn có chắc muốn mở khóa thẻ thư viện này?")) {
       try {
         toast.info("Đang mở khóa thẻ thư viện...");
         const updatedCard = await LibraryCardServices.unlock(cardNumber);
@@ -73,8 +87,8 @@ const LibraryCardList = () => {
         toast.success('Mở khóa thẻ thư viện thành công!');
       } catch (err) {
         console.error(err);
-        setError('Không thể mở khóa thẻ thư viện.');
-        toast.error('Không thể mở khóa thẻ thư viện.');
+        setError("Không thể mở khóa thẻ thư viện.");
+        toast.error("Không thể mở khóa thẻ thư viện.");
       }
     }
   };
@@ -92,7 +106,7 @@ const LibraryCardList = () => {
   };
 
   const handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       handleSearch();
     }
   };
@@ -103,7 +117,10 @@ const LibraryCardList = () => {
       <div className="flex flex-col md:flex-row justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold">Danh sách Thẻ thư viện</h2>
         <div className="flex space-x-2">
-          <Link to="/librarycards/new" className="mt-4 md:mt-0 bg-blue-600 text-white px-4 py-2 rounded flex items-center hover:bg-blue-700 transition duration-200">
+          <Link
+            to="/librarycards/new"
+            className="mt-4 md:mt-0 bg-blue-600 text-white px-4 py-2 rounded flex items-center hover:bg-blue-700 transition duration-200"
+          >
             <PlusIcon className="h-5 w-5 mr-2" />
             Thêm Thẻ thư viện
           </Link>
@@ -113,9 +130,7 @@ const LibraryCardList = () => {
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-100 text-red-700 p-4 rounded mb-4">
-          {error}
-        </div>
+        <div className="bg-red-100 text-red-700 p-4 rounded mb-4">{error}</div>
       )}
 
       {/* Search Bar */}
@@ -142,15 +157,33 @@ const LibraryCardList = () => {
         <table className="min-w-full bg-white shadow-md rounded-lg">
           <thead className="bg-gray-800 text-white">
             <tr>
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">Số thẻ</th>
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">Bắt đầu</th>
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">Hết hạn</th>
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">Tên người đọc</th>
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">Địa chỉ</th>
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">Số sách tối đa</th>
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">Ghi chú</th>
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-center">Trạng thái</th>
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-center">Hành động</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">
+                Số thẻ
+              </th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">
+                Bắt đầu
+              </th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">
+                Hết hạn
+              </th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">
+                Tên người đọc
+              </th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">
+                Địa chỉ
+              </th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">
+                Số sách tối đa
+              </th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">
+                Ghi chú
+              </th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center">
+                Trạng thái
+              </th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center">
+                Hành động
+              </th>
             </tr>
           </thead>
           <tbody className="text-gray-700">
@@ -234,11 +267,48 @@ const LibraryCardList = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="9" className="py-4 px-4 text-center">Không tìm thấy thẻ thư viện nào.</td>
+                <td colSpan="9" className="py-4 px-4 text-center">
+                  Không tìm thấy thẻ thư viện nào.
+                </td>
               </tr>
             )}
           </tbody>
         </table>
+      </div>
+      <div className="flex flex-col md:flex-row justify-between items-center mt-4">
+        <div>
+          <span className="text-sm text-gray-700">
+            Hiển thị {(pagination.page - 1) * pagination.limit + 1} đến{" "}
+            {Math.min(pagination.page * pagination.limit, totalCards)} trong
+            tổng số {totalCards} thẻ thư viện
+          </span>
+        </div>
+
+        <div className="flex space-x-2 mt-2 md:mt-0">
+          <button
+            onClick={() => handlePageChange(pagination.page - 1)}
+            disabled={pagination.page === 1}
+            className={`px-3 py-1 rounded ${
+              pagination.page === 1
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700 transition duration-200"
+            }`}
+          >
+            Trước
+          </button>
+          <span className="px-3 py-1">{pagination.page}</span>
+          <button
+            onClick={() => handlePageChange(pagination.page + 1)}
+            disabled={pagination.page * pagination.limit >= totalCards}
+            className={`px-3 py-1 rounded ${
+              pagination.page * pagination.limit >= totalCards
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700 transition duration-200"
+            }`}
+          >
+            Sau
+          </button>
+        </div>
       </div>
     </div>
   );
