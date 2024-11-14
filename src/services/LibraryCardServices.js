@@ -25,7 +25,7 @@ class LibraryCardServices {
     return (await this.api.delete(`/${id}`)).data;
   }
   async unlock(id) {
-    return (await this.api.patch(`/${id}/unlock`)).data;
+    return (await this.api.put(`/${id}/unlock`)).data;
   }
 }
 

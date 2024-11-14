@@ -1,7 +1,7 @@
 // src/components/LibraryCardList.jsx
 
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   PencilSquareIcon,
   TrashIcon,
@@ -9,10 +9,11 @@ import {
   MagnifyingGlassIcon,
   LockClosedIcon,
   LockOpenIcon,
+  XCircleIcon , // Newly added
 } from "@heroicons/react/24/outline";
-import LibraryCardServices from "../../services/LibraryCardServices";
-import { toast } from "react-toastify";
-import GenericExport from "../../components/GenericExport";
+import LibraryCardServices from '../../services/LibraryCardServices';
+import { toast } from 'react-toastify';
+import GenericExport from '../../components/GenericExport';
 
 const LibraryCardList = () => {
   const [cards, setCards] = useState([]);
@@ -82,12 +83,8 @@ const LibraryCardList = () => {
       try {
         toast.info("Đang mở khóa thẻ thư viện...");
         const updatedCard = await LibraryCardServices.unlock(cardNumber);
-        setCards(
-          cards.map((card) =>
-            card.card_number === cardNumber ? updatedCard : card
-          )
-        );
-        toast.success("Mở khóa thẻ thư viện thành công!");
+        setCards(cards.map(card => (card.card_number === cardNumber ? updatedCard.card : card)));
+        toast.success('Mở khóa thẻ thư viện thành công!');
       } catch (err) {
         console.error(err);
         setError("Không thể mở khóa thẻ thư viện.");
@@ -191,66 +188,76 @@ const LibraryCardList = () => {
           </thead>
           <tbody className="text-gray-700">
             {Array.isArray(cards) && cards.length > 0 ? (
-              cards.map((card) => (
+              cards.map(card => (
                 <tr
                   key={card.card_number}
-                  className="hover:bg-gray-100 transition duration-150"
+                  className={`hover:bg-gray-100 transition duration-150 ${
+                    card.late_return_count > 5 ? 'bg-gray-50' : ''
+                  }`}
                 >
                   <td className="py-3 px-4 text-center">{card.card_number}</td>
                   <td className="py-3 px-4 text-center">
-                    {card.start_date
-                      ? new Date(card.start_date).toLocaleDateString()
-                      : "N/A"}
+                    {card.start_date ? new Date(card.start_date).toLocaleDateString() : 'N/A'}
                   </td>
                   <td className="py-3 px-4 text-center">
-                    {card.expiry_date
-                      ? new Date(card.expiry_date).toLocaleDateString()
-                      : "N/A"}
+                    {card.expiry_date ? new Date(card.expiry_date).toLocaleDateString() : 'N/A'}
                   </td>
-                  <td className="py-3 px-4 text-center">{card.reader_name}</td>
-                  <td className="py-3 px-4 text-center">
-                    {card.address || "N/A"}
-                  </td>
-                  <td className="py-3 px-4 text-center">
-                    {card.max_books_allowed}
-                  </td>
-                  <td className="py-3 px-4 text-center">
-                    {card.notes || "N/A"}
-                  </td>
-                  <td
-                    className={`py-3 px-4 text-center font-semibold ${
-                      card.is_locked ? "text-red-600" : "text-green-600"
-                    }`}
-                  >
-                    {card.is_locked ? (
+                  <td className="py-3 px-4 text-left">{card.reader_name}</td>
+                  <td className="py-3 px-4 text-left">{card.address || 'N/A'}</td>
+                  <td className="py-3 px-4 text-center">{card.max_books_allowed}</td>
+                  <td className="py-3 px-4 text-center">{card.notes || 'N/A'}</td>
+                  <td className={`py-3 px-4 text-center font-semibold ${
+                    card.late_return_count > 5
+                      ? 'text-gray-600'
+                      : card.is_locked
+                      ? 'text-red-600'
+                      : 'text-green-600'
+                  }`}>
+                    {card.late_return_count > 5 ? (
                       <span className="flex items-center justify-center">
-                        <LockClosedIcon className="h-5 w-5 mr-1" />
+                        <XCircleIcon  className="h-5 w-5 mr-1 text-gray-600" />
+                        Đã vô hiệu hóa
+                      </span>
+                    ) : card.is_locked ? (
+                      <span className="flex items-center justify-center">
+                        <LockClosedIcon className="h-5 w-5 mr-1 text-red-600" />
                         Đã khóa
                       </span>
                     ) : (
                       <span className="flex items-center justify-center">
-                        <LockOpenIcon className="h-5 w-5 mr-1" />
+                        <LockOpenIcon className="h-5 w-5 mr-1 text-green-600" />
                         Đang hoạt động
                       </span>
                     )}
                   </td>
                   <td className="py-3 px-4 flex space-x-2 justify-center">
-                    <Link
-                      to={`/librarycards/edit/${card.card_number}`}
-                      className="text-yellow-600 hover:text-yellow-800"
-                    >
+                    <Link to={`/librarycards/edit/${card.card_number}`} className={`${
+                      card.late_return_count > 5
+                        ? 'text-gray-400 cursor-not-allowed'
+                        : 'text-yellow-600 hover:text-yellow-800'
+                    }`} onClick={(e) => {
+                      if (card.late_return_count > 5) e.preventDefault();
+                    }}>
                       <PencilSquareIcon className="h-5 w-5" />
                     </Link>
                     <button
                       onClick={() => handleDelete(card.card_number)}
-                      className="text-red-600 hover:text-red-800"
+                      className={`${
+                        card.late_return_count > 5
+                          ? 'text-gray-400 cursor-not-allowed'
+                          : 'text-red-600 hover:text-red-800'
+                      }`}
+                      disabled={card.late_return_count > 5}
+                      title={card.late_return_count > 5 ? 'Thẻ thư viện đã bị vô hiệu hóa và không thể xóa.' : 'Xóa thẻ thư viện'}
                     >
                       <TrashIcon className="h-5 w-5" />
                     </button>
-                    {card.is_locked && (
+                    {/* Show Unlock button only if the card is locked and late_return_count <= 5 */}
+                    {card.is_locked && card.late_return_count <= 5 && (
                       <button
                         onClick={() => handleUnlock(card.card_number)}
                         className="text-green-600 hover:text-green-800"
+                        title="Mở khóa thẻ thư viện"
                       >
                         <LockOpenIcon className="h-5 w-5" />
                       </button>
