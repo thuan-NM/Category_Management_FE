@@ -1,3 +1,5 @@
+// src/components/Statistics.js
+
 import React, { useEffect, useState } from 'react';
 import { Select, Spin, Card, Skeleton } from 'antd';
 import { Line, Bar } from '@ant-design/charts';
@@ -7,7 +9,7 @@ const { Option } = Select;
 
 function Statistics() {
   const [loading, setLoading] = useState(false);
-  const [timeInterval, setTimeInterval] = useState('month');
+  const [timeInterval, setTimeInterval] = useState('week'); // Set default to 'week'
   const [borrowingData, setBorrowingData] = useState([]);
   const [topBooksData, setTopBooksData] = useState([]);
 
@@ -32,11 +34,11 @@ function Statistics() {
       setBorrowingData(validData);
     } catch (err) {
       console.error(err);
+      // Optionally, display an error message to the user
     } finally {
       setLoading(false);
     }
   };
-
 
   const fetchTopBorrowedBooks = async () => {
     setLoading(true);
@@ -48,14 +50,16 @@ function Statistics() {
       })));
     } catch (err) {
       console.error(err);
+      // Optionally, display an error message to the user
     } finally {
       setLoading(false);
     }
   };
 
   const timeIntervalOptions = [
+    { value: 'week', label: 'Tuần' },
     { value: 'month', label: 'Tháng' },
-    { value: 'year', label: 'Năm' },
+    { value: 'year', label: 'Năm' }, // Optionally, include 'year' if needed
   ];
 
   const handleTimeIntervalChange = (value) => {
@@ -171,7 +175,7 @@ function Statistics() {
         <Skeleton active />
       ) : (
         <Card
-          title={`Số lượt mượn sách theo ${timeInterval}`}
+          title={`Số lượt mượn sách theo ${timeInterval === 'week' ? 'Tuần' : timeInterval === 'month' ? 'Tháng' : 'Năm'}`}
           bordered={false}
           style={{ borderRadius: 8, boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}
         >

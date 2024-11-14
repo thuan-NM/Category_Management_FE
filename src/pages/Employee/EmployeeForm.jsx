@@ -1,17 +1,21 @@
 // src/components/EmployeeForm.js
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import EmployeeServices from '../../services/EmployeeServices';
 import { Button, Card, Form, Input, DatePicker, Select } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { toast } from 'react-toastify'; // Import toast từ react-toastify
+import { debounce } from 'lodash';
+import { Progress } from 'antd';
+const { Option } = Select;
 
 const EmployeeForm = () => {
   const [form] = Form.useForm(); // Lấy form instance
   const navigate = useNavigate();
   const { id } = useParams();
+  const [passwordStrength, setPasswordStrength] = useState(0);
 
   useEffect(() => {
     if (id) {
@@ -36,6 +40,22 @@ const EmployeeForm = () => {
         });
     }
   }, [id, form, navigate]);
+
+  const calculatePasswordStrength = (password) => {
+    let strength = 0;
+    if (password.length >= 8) strength += 1;
+    if (/[A-Z]/.test(password)) strength += 1;
+    if (/[a-z]/.test(password)) strength += 1;
+    if (/\d/.test(password)) strength += 1;
+    if (/[@$!%*?&]/.test(password)) strength += 1;
+    return (strength / 5) * 100;
+  };
+
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+    const strength = calculatePasswordStrength(value);
+    setPasswordStrength(strength);
+  };
 
   const handleSubmit = (values) => {
     const employeeData = {
@@ -122,9 +142,12 @@ const EmployeeForm = () => {
           <Form.Item
             label="Tên đăng nhập"
             name="username"
-            rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập' }]}
+            rules={[
+              { required: true, message: 'Vui lòng nhập tên đăng nhập' },
+              { type: 'email', message: 'Tên đăng nhập phải là email hợp lệ' },
+            ]}
           >
-            <Input disabled={id} />
+            <Input type="email" disabled={id} placeholder="example@domain.com" />
           </Form.Item>
 
           <Form.Item
@@ -133,19 +156,39 @@ const EmployeeForm = () => {
             rules={[{ required: true, message: 'Vui lòng điền vào chức vụ' }]}
           >
             <Select>
-              <Select.Option value="employee">Nhân viên</Select.Option>
-              <Select.Option value="admin">Quản trị viên</Select.Option>
+              <Option value="employee">Nhân viên</Option>
+              <Option value="admin">Quản trị viên</Option>
             </Select>
           </Form.Item>
 
           {!id && (
-            <Form.Item
-              label="Mật khẩu"
-              name="password"
-              rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}
-            >
-              <Input.Password />
-            </Form.Item>
+            <>
+              <Form.Item
+                label="Mật khẩu"
+                name="password"
+                rules={[
+                  { required: true, message: 'Vui lòng nhập mật khẩu' },
+                  {
+                    pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                    message:
+                      'Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ cái in hoa, chữ cái thường, số và ký tự đặc biệt (@$!%*?&).',
+                  },
+                ]}
+                hasFeedback
+              >
+                <Input.Password placeholder="Nhập mật khẩu" onChange={handlePasswordChange} />
+              </Form.Item>
+              <Form.Item>
+                <Progress percent={passwordStrength} showInfo={false} />
+                <div>
+                  {passwordStrength === 100
+                    ? 'Mật khẩu mạnh'
+                    : passwordStrength >= 60
+                      ? 'Mật khẩu vừa phải'
+                      : 'Mật khẩu yếu'}
+                </div>
+              </Form.Item>
+            </>
           )}
 
           <Form.Item>

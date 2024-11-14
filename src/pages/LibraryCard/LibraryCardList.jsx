@@ -1,6 +1,8 @@
+// src/components/LibraryCardList.jsx
+
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { PencilSquareIcon, TrashIcon, PlusIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { PencilSquareIcon, TrashIcon, PlusIcon, MagnifyingGlassIcon, LockClosedIcon, LockOpenIcon } from "@heroicons/react/24/outline";
 import LibraryCardServices from '../../services/LibraryCardServices';
 import { toast } from 'react-toastify';
 import GenericExport from '../../components/GenericExport';
@@ -9,7 +11,7 @@ const LibraryCardList = () => {
   const [cards, setCards] = useState([]);
   const [totalCards, setTotalCards] = useState(0);
   const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState(''); // State để quản lý ô tìm kiếm
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchLibraryCards();
@@ -27,7 +29,6 @@ const LibraryCardList = () => {
       setCards(res.data.rows);
       setTotalCards(res.data.count);
       setError(null);
-
 
       if (search) {
         toast.success("Tìm kiếm thành công!");
@@ -55,16 +56,29 @@ const LibraryCardList = () => {
     }
   };
 
+  const handleUnlock = async (cardNumber) => {
+    if (window.confirm('Bạn có chắc muốn mở khóa thẻ thư viện này?')) {
+      try {
+        toast.info("Đang mở khóa thẻ thư viện...");
+        const updatedCard = await LibraryCardServices.unlock(cardNumber);
+        setCards(cards.map(card => (card.card_number === cardNumber ? updatedCard : card)));
+        toast.success('Mở khóa thẻ thư viện thành công!');
+      } catch (err) {
+        console.error(err);
+        setError('Không thể mở khóa thẻ thư viện.');
+        toast.error('Không thể mở khóa thẻ thư viện.');
+      }
+    }
+  };
+
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
-      // Nếu ô tìm kiếm trống, tải toàn bộ thẻ thư viện
       await fetchLibraryCards();
     } else {
-      // Nếu ô tìm kiếm có nội dung, thực hiện tìm kiếm
       await fetchLibraryCards(searchQuery.trim());
     }
   };
@@ -120,27 +134,41 @@ const LibraryCardList = () => {
         <table className="min-w-full bg-white shadow-md rounded-lg">
           <thead className="bg-gray-800 text-white">
             <tr>
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500 ">Số thẻ</th>
-              <th className="py-3 px-3 uppercase font-semibold text-sm text-center border-r border-gray-500 ">Bắt đầu</th>
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500 ">Hết hạn</th>
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500 ">Tên người đọc</th>
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500 ">Địa chỉ</th>
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left border-r border-gray-500">Số sách tối đa</th>
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500 ">Ghi chú</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">Số thẻ</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">Bắt đầu</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">Hết hạn</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">Tên người đọc</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">Địa chỉ</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">Số sách tối đa</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">Ghi chú</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center">Trạng thái</th>
               <th className="py-3 px-4 uppercase font-semibold text-sm text-center">Hành động</th>
             </tr>
           </thead>
           <tbody className="text-gray-700">
             {Array.isArray(cards) && cards.length > 0 ? (
-              cards.map((card, index) => (
+              cards.map(card => (
                 <tr key={card.card_number} className="hover:bg-gray-100 transition duration-150">
-                  <td className="py-3 px-4">{card.card_number}</td>
-                  <td className="py-3 px-4">{card.start_date ? new Date(card.start_date).toLocaleDateString() : 'N/A'}</td>
-                  <td className="py-3 px-4">{card.expiry_date ? new Date(card.expiry_date).toLocaleDateString() : 'N/A'}</td>
-                  <td className="py-3 px-4">{card.reader_name}</td>
-                  <td className="py-3 px-4">{card.address || 'N/A'}</td>
-                  <td className="py-3 px-4">{card.max_books_allowed}</td>
-                  <td className="py-3 px-4">{card.notes || 'N/A'}</td>
+                  <td className="py-3 px-4 text-center">{card.card_number}</td>
+                  <td className="py-3 px-4 text-center">{card.start_date ? new Date(card.start_date).toLocaleDateString() : 'N/A'}</td>
+                  <td className="py-3 px-4 text-center">{card.expiry_date ? new Date(card.expiry_date).toLocaleDateString() : 'N/A'}</td>
+                  <td className="py-3 px-4 text-center">{card.reader_name}</td>
+                  <td className="py-3 px-4 text-center">{card.address || 'N/A'}</td>
+                  <td className="py-3 px-4 text-center">{card.max_books_allowed}</td>
+                  <td className="py-3 px-4 text-center">{card.notes || 'N/A'}</td>
+                  <td className={`py-3 px-4 text-center font-semibold ${card.is_locked ? 'text-red-600' : 'text-green-600'}`}>
+                    {card.is_locked ? (
+                      <span className="flex items-center justify-center">
+                        <LockClosedIcon className="h-5 w-5 mr-1" />
+                        Đã khóa
+                      </span>
+                    ) : (
+                      <span className="flex items-center justify-center">
+                        <LockOpenIcon className="h-5 w-5 mr-1" />
+                        Đang hoạt động
+                      </span>
+                    )}
+                  </td>
                   <td className="py-3 px-4 flex space-x-2 justify-center">
                     <Link to={`/librarycards/edit/${card.card_number}`} className="text-yellow-600 hover:text-yellow-800">
                       <PencilSquareIcon className="h-5 w-5" />
@@ -148,12 +176,17 @@ const LibraryCardList = () => {
                     <button onClick={() => handleDelete(card.card_number)} className="text-red-600 hover:text-red-800">
                       <TrashIcon className="h-5 w-5" />
                     </button>
+                    {card.is_locked && (
+                      <button onClick={() => handleUnlock(card.card_number)} className="text-green-600 hover:text-green-800">
+                        <LockOpenIcon className="h-5 w-5" />
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="8" className="py-4 px-4 text-center">Không tìm thấy thẻ thư viện nào.</td>
+                <td colSpan="9" className="py-4 px-4 text-center">Không tìm thấy thẻ thư viện nào.</td>
               </tr>
             )}
           </tbody>

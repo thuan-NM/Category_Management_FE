@@ -24,6 +24,9 @@ class LibraryCardServices {
   async delete(id) {
     return (await this.api.delete(`/${id}`)).data;
   }
+  async unlock(id) {
+    return (await this.api.patch(`/${id}/unlock`)).data;
+  }
 }
 
 export default new LibraryCardServices();
