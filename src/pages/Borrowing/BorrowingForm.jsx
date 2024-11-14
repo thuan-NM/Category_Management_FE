@@ -5,6 +5,7 @@ import {
   DatePicker,
   Button,
   Form,
+  Input,
   InputNumber,
   message,
   Typography,
@@ -24,6 +25,7 @@ const BorrowingForm = () => {
     borrow_date: "",
     card_number: "",
     employee_id: userInfo.employee_id,
+    notes: "", // Added notes field here
     books: [],
   });
   const [libraryCards, setLibraryCards] = useState([]);
@@ -42,6 +44,7 @@ const BorrowingForm = () => {
     employee_id: Joi.string().required().messages({
       "string.empty": "Nhân viên không được để trống.",
     }),
+    notes: Joi.string().allow('').optional(), // Added validation for notes
     books: Joi.array()
       .min(1)
       .max(max_books_allowed)
@@ -228,6 +231,17 @@ const BorrowingForm = () => {
                 />
               </div>
             ))}
+          </Form.Item>
+
+          {/* Added Form.Item for notes */}
+          <Form.Item label="Ghi chú">
+            <Input.TextArea
+              value={borrowing.notes}
+              onChange={(e) =>
+                setBorrowing((prev) => ({ ...prev, notes: e.target.value }))
+              }
+              rows={4}
+            />
           </Form.Item>
 
           <Form.Item>

@@ -21,7 +21,7 @@ const MainLayout = () => {
       <Layout
         className={`transition-all duration-300 ease-in-out`}
         style={{
-          marginLeft: collapsed ? 80 : 250, // Thay đổi margin-left dựa trên trạng thái thu gọn
+          marginLeft: collapsed ? 80 : 250, 
           transition: 'margin-left 0.3s ease-in-out',
         }}
       >
@@ -30,9 +30,6 @@ const MainLayout = () => {
           className="bg-blue-500 text-white px-6 flex items-center justify-between shadow-md"
         >
           <div className="text-xl font-semibold">Hệ thống quản lý thư viện</div>
-          <button onClick={handleToggleSidebar} className="bg-white text-black px-4 py-1 rounded">
-            {collapsed ? 'Mở Sidebar' : 'Thu gọn Sidebar'}
-          </button>
         </Header>
 
         {/* Content */}
@@ -41,11 +38,6 @@ const MainLayout = () => {
         >
           <Outlet />
         </Content>
-
-        {/* Footer */}
-        <Footer style={{ textAlign: 'center' }}>
-          Hệ thống quản lý thư viện ©2024
-        </Footer>
       </Layout>
     </Layout>
   );
