@@ -8,27 +8,18 @@ import {
     PhoneOutlined,
     AreaChartOutlined,
 } from '@ant-design/icons';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../store/authSlice';
 
 const { Sider } = Layout;
 
-const Sidebar = () => {
-    const [collapsed, setCollapsed] = useState(false);
+const Sidebar = ({ collapsed, onToggle }) => {
     const dispatch = useDispatch();
-    const navigate = useNavigate();
     const userInfo = useSelector((state) => state.auth.user); // Fetch user data from Redux store
-
-    console.log('User info:', userInfo);
-
-    const toggleCollapsed = () => {
-        setCollapsed(!collapsed);
-    };
 
     const handleLogout = () => {
         dispatch(logout());
-        navigate('/auth');
     };
 
     // Define the items for the menu, filtering out "Employees" tab for employees
@@ -73,7 +64,7 @@ const Sidebar = () => {
         {
             key: '8',
             icon: <AreaChartOutlined />,
-            label: <Link to="/Statistics">Statistics</Link>,
+            label: <Link to="/statistics">Thống kê</Link>,
         },
     ];
 
@@ -81,8 +72,8 @@ const Sidebar = () => {
         <Sider
             collapsible
             collapsed={collapsed}
-            onCollapse={toggleCollapsed}
-            className="min-h-screen bg-gray-900 shadow-lg flex flex-col justify-between py-4"
+            onCollapse={onToggle}
+            className="min-h-screen bg-gray-900 shadow-lg flex flex-col justify-between py-4 fixed left-0 top-0"
             width={250}
         >
             {/* Header Section */}
