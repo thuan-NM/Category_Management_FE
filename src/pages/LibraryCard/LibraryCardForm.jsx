@@ -10,6 +10,7 @@ const LibraryCardForm = () => {
     reader_name: '',
     address: '',
     notes: '',
+    max_books_allowed: 0,
   });
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ const LibraryCardForm = () => {
         expiry_date: res.data.expiry_date,
         reader_name: res.data.reader_name,
         address: res.data.address,
+        max_books_allowed: res.data.max_books_allowed,
         notes: res.data.notes,
       });
     } catch (err) {
@@ -38,13 +40,14 @@ const LibraryCardForm = () => {
   };
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setCard({
       ...card,
-      [e.target.name]: e.target.value,
+      [name]: name === 'max_books_allowed' ? parseInt(value, 10) : value,
     });
     setErrors({
       ...errors,
-      [e.target.name]: '',
+      [name]: '',
     });
   };
 
@@ -52,6 +55,11 @@ const LibraryCardForm = () => {
     const newErrors = {};
     if (!card.start_date) newErrors.start_date = 'Ngày bắt đầu là bắt buộc.';
     if (!card.reader_name) newErrors.reader_name = 'Tên người đọc là bắt buộc.';
+    if (card.max_books_allowed === undefined || card.max_books_allowed === null) {
+      newErrors.max_books_allowed = 'Số sách tối đa là bắt buộc.';
+    } else if (!Number.isInteger(card.max_books_allowed) || card.max_books_allowed <= 0) {
+      newErrors.max_books_allowed = 'Số sách tối đa phải là số nguyên dương.';
+    }
     return newErrors;
   };
 
@@ -142,6 +150,22 @@ const LibraryCardForm = () => {
             placeholder="Nhập địa chỉ"
             className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
+        </div>
+
+        {/* Số sách tối đa */}
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2">Số sách tối đa được mượn</label>
+          <input
+            type="number"
+            name="max_books_allowed"
+            value={card.max_books_allowed}
+            onChange={handleChange}
+            placeholder="Nhập số sách tối đa"
+            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 ${errors.max_books_allowed ? 'border-red-500' : ''}`}
+            min="1"
+            required
+          />
+          {errors.max_books_allowed && <p className="text-red-500 text-sm mt-1">{errors.max_books_allowed}</p>}
         </div>
 
         {/* Ghi chú */}

@@ -1,5 +1,3 @@
-// src/components/LibraryCardList.jsx
-
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PencilSquareIcon, TrashIcon, PlusIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
@@ -122,6 +120,7 @@ const LibraryCardList = () => {
               <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Ngày hết hạn</th>
               <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Tên người đọc</th>
               <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Địa chỉ</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Số sách tối đa</th>
               <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Ghi chú</th>
               <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Hành động</th>
             </tr>
@@ -135,6 +134,7 @@ const LibraryCardList = () => {
                   <td className="py-3 px-4">{card.expiry_date ? new Date(card.expiry_date).toLocaleDateString() : 'N/A'}</td>
                   <td className="py-3 px-4">{card.reader_name}</td>
                   <td className="py-3 px-4">{card.address || 'N/A'}</td>
+                  <td className="py-3 px-4">{card.max_books_allowed}</td>
                   <td className="py-3 px-4">{card.notes || 'N/A'}</td>
                   <td className="py-3 px-4 flex space-x-2">
                     <Link to={`/librarycards/edit/${card.card_number}`} className="text-yellow-600 hover:text-yellow-800">
@@ -148,7 +148,7 @@ const LibraryCardList = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="py-4 px-4 text-center">Không tìm thấy thẻ thư viện nào.</td>
+                <td colSpan="8" className="py-4 px-4 text-center">Không tìm thấy thẻ thư viện nào.</td>
               </tr>
             )}
           </tbody>

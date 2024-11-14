@@ -36,6 +36,14 @@ class BorrowingServices {
   async updateStatus(borrowId, isReturned) {
     return await this.api.put(`/${borrowId}/status`, { isReturned });
   }
+
+  async getStatistics(interval) {
+    return (await this.api.get(`/statistics`, { params: { interval } })).data;
+  }
+
+  async getTopBorrowedBooks(limit = 10) {
+    return (await this.api.get(`/top-borrowed-books`, { params: { limit } })).data;
+  }
 }
 
 export default new BorrowingServices();
