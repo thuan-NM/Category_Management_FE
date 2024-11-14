@@ -124,7 +124,7 @@ const EmployeeForm = () => {
             name="username"
             rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập' }]}
           >
-            <Input disabled />
+            <Input disabled={id} />
           </Form.Item>
 
           <Form.Item

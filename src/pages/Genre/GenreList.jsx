@@ -2,15 +2,16 @@
 
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  PencilSquareIcon, 
-  TrashIcon, 
-  PlusIcon, 
-  MagnifyingGlassIcon 
+import {
+  PencilSquareIcon,
+  TrashIcon,
+  PlusIcon,
+  MagnifyingGlassIcon
 } from "@heroicons/react/24/outline";
 import GenreServices from '../../services/GenreServices';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import GenericExport from '../../components/GenericExport';
 
 const GenreList = () => {
   const [genres, setGenres] = useState([]);
@@ -83,14 +84,16 @@ const GenreList = () => {
 
   return (
     <div className="p-4">
-      <ToastContainer />
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold">Danh sách Thể loại</h2>
-        <Link to="/genres/new" className="mt-4 md:mt-0 bg-blue-600 text-white px-4 py-2 rounded flex items-center hover:bg-blue-700 transition duration-200">
-          <PlusIcon className="h-5 w-5 mr-2" />
-          Thêm Thể loại
-        </Link>
+        <div className="flex space-x-2">
+          <Link to="/genres/new" className="mt-4 md:mt-0 bg-blue-600 text-white px-4 py-2 rounded flex items-center hover:bg-blue-700 transition duration-200">
+            <PlusIcon className="h-5 w-5 mr-2" />
+            Thêm Thể loại
+          </Link>
+          <GenericExport collectionname={"Genre"} />
+        </div>
       </div>
 
       {/* Error Message */}
@@ -122,8 +125,8 @@ const GenreList = () => {
         />
         {/* Search Button */}
         <div className="flex items-center">
-          <button 
-            onClick={handleSearch} 
+          <button
+            onClick={handleSearch}
             className="w-full bg-green-600 text-white px-4 py-2 rounded flex items-center justify-center hover:bg-green-700 transition duration-200"
           >
             <MagnifyingGlassIcon className="h-5 w-5 mr-2" />
@@ -138,13 +141,13 @@ const GenreList = () => {
           <thead className="bg-gray-800 text-white">
             <tr>
               {/* STT */}
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">STT</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">STT</th>
               {/* Genre Name */}
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Tên thể loại</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">Tên thể loại</th>
               {/* Description */}
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Mô tả</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">Mô tả</th>
               {/* Actions */}
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Hành động</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center">Hành động</th>
             </tr>
           </thead>
           <tbody className="text-gray-700">
@@ -154,7 +157,7 @@ const GenreList = () => {
                   <td className="py-3 px-4">{(pagination.page - 1) * pagination.limit + index + 1}</td>
                   <td className="py-3 px-4">{genre.genre_name}</td>
                   <td className="py-3 px-4">{genre.description || 'N/A'}</td>
-                  <td className="py-3 px-4 flex space-x-2">
+                  <td className="py-3 px-4 flex space-x-2 justify-center">
                     <Link to={`/genres/edit/${genre.genre_id}`} className="text-yellow-600 hover:text-yellow-800">
                       <PencilSquareIcon className="h-5 w-5" />
                     </Link>
@@ -183,16 +186,16 @@ const GenreList = () => {
         </div>
         {/* Pagination Buttons */}
         <div className="flex space-x-2 mt-2 md:mt-0">
-          <button 
-            onClick={() => handlePageChange(pagination.page - 1)} 
+          <button
+            onClick={() => handlePageChange(pagination.page - 1)}
             disabled={pagination.page === 1}
             className={`px-3 py-1 rounded ${pagination.page === 1 ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 transition duration-200'}`}
           >
             Trước
           </button>
           <span className="px-3 py-1">{pagination.page}</span>
-          <button 
-            onClick={() => handlePageChange(pagination.page + 1)} 
+          <button
+            onClick={() => handlePageChange(pagination.page + 1)}
             disabled={pagination.page * pagination.limit >= totalGenres}
             className={`px-3 py-1 rounded ${pagination.page * pagination.limit >= totalGenres ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 transition duration-200'}`}
           >

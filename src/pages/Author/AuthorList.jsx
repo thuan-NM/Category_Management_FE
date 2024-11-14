@@ -2,15 +2,16 @@
 
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  PencilSquareIcon, 
-  TrashIcon, 
-  PlusIcon, 
-  MagnifyingGlassIcon 
+import {
+  PencilSquareIcon,
+  TrashIcon,
+  PlusIcon,
+  MagnifyingGlassIcon
 } from "@heroicons/react/24/outline";
 import AuthorServices from '../../services/AuthorServices';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import GenericExport from '../../components/GenericExport';
 
 const AuthorList = () => {
   const [authors, setAuthors] = useState([]);
@@ -83,14 +84,16 @@ const AuthorList = () => {
 
   return (
     <div className="p-4">
-      <ToastContainer />
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold">Danh sách Tác giả</h2>
-        <Link to="/authors/new" className="mt-4 md:mt-0 bg-blue-600 text-white px-4 py-2 rounded flex items-center hover:bg-blue-700 transition duration-200">
-          <PlusIcon className="h-5 w-5 mr-2" />
-          Thêm Tác giả
-        </Link>
+        <div className="flex space-x-2">
+          <Link to="/authors/new" className="mt-4 md:mt-0 bg-blue-600 text-white px-4 py-2 rounded flex items-center hover:bg-blue-700 transition duration-200">
+            <PlusIcon className="h-5 w-5 mr-2" />
+            Thêm Tác giả
+          </Link>
+          <GenericExport collectionname={"Author"} />
+        </div>
       </div>
 
       {/* Error Message */}
@@ -122,8 +125,8 @@ const AuthorList = () => {
         />
         {/* Search Button */}
         <div className="flex items-center">
-          <button 
-            onClick={handleSearch} 
+          <button
+            onClick={handleSearch}
             className="w-full bg-green-600 text-white px-4 py-2 rounded flex items-center justify-center hover:bg-green-700 transition duration-200"
           >
             <MagnifyingGlassIcon className="h-5 w-5 mr-2" />
@@ -138,15 +141,15 @@ const AuthorList = () => {
           <thead className="bg-gray-800 text-white">
             <tr>
               {/* STT */}
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">STT</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">STT</th>
               {/* Author Name */}
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Tên tác giả</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">Tên tác giả</th>
               {/* Website */}
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Website</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">Website</th>
               {/* Notes */}
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Ghi chú</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500">Ghi chú</th>
               {/* Actions */}
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Hành động</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center">Hành động</th>
             </tr>
           </thead>
           <tbody className="text-gray-700">
@@ -157,7 +160,7 @@ const AuthorList = () => {
                   <td className="py-3 px-4">{author.author_name}</td>
                   <td className="py-3 px-4">{author.website || 'N/A'}</td>
                   <td className="py-3 px-4">{author.notes || 'N/A'}</td>
-                  <td className="py-3 px-4 flex space-x-2">
+                  <td className="py-3 px-4 flex space-x-2 justify-center">
                     <Link to={`/authors/edit/${author.author_id}`} className="text-yellow-600 hover:text-yellow-800">
                       <PencilSquareIcon className="h-5 w-5" />
                     </Link>
@@ -186,16 +189,16 @@ const AuthorList = () => {
         </div>
         {/* Pagination Buttons */}
         <div className="flex space-x-2 mt-2 md:mt-0">
-          <button 
-            onClick={() => handlePageChange(pagination.page - 1)} 
+          <button
+            onClick={() => handlePageChange(pagination.page - 1)}
             disabled={pagination.page === 1}
             className={`px-3 py-1 rounded ${pagination.page === 1 ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 transition duration-200'}`}
           >
             Trước
           </button>
           <span className="px-3 py-1">{pagination.page}</span>
-          <button 
-            onClick={() => handlePageChange(pagination.page + 1)} 
+          <button
+            onClick={() => handlePageChange(pagination.page + 1)}
             disabled={pagination.page * pagination.limit >= totalAuthors}
             className={`px-3 py-1 rounded ${pagination.page * pagination.limit >= totalAuthors ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 transition duration-200'}`}
           >

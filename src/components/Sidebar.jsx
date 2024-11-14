@@ -96,7 +96,7 @@ const Sidebar = () => {
                             <span>{userInfo.phone_number}</span>
                         </div>
                         <div className="mt-1 text-sm text-gray-300">
-                            Role: {userInfo.role}
+                            Chức vụ: {userInfo.role}
                         </div>
                     </div>
                 )}
@@ -113,7 +113,7 @@ const Sidebar = () => {
                     onClick={handleLogout}
                     className="w-full bg-red-600 hover:bg-red-700 border-none"
                 >
-                    {!collapsed && 'Logout'}
+                    {!collapsed && 'Đăng xuất'}
                 </Button>
             </div>
         </Sider>
