@@ -105,10 +105,10 @@ const BorrowingList = () => {
 
   const columns = [
     {
-      title: "ID",
-      dataIndex: "borrow_id",
-      key: "borrow_id",
-    },
+      title: "STT",
+      key: "index",
+      render: (_, __, index) => index + 1,
+    },    
     {
       title: "Ngày mượn",
       dataIndex: "borrow_date",
@@ -211,12 +211,14 @@ const BorrowingList = () => {
     <div>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">Danh sách Mượn sách</h2>
-        <GenericExport collectionname={"Borrowing"} />
-        <Link to="/borrowings/new">
-          <Button type="primary" icon={<PlusOutlined />} size="large">
-            Thêm Mượn sách
-          </Button>
-        </Link>
+        <div className="flex space-x-2">
+          <Link to="/borrowings/new">
+            <Button type="primary" icon={<PlusOutlined />} size="large">
+              Thêm Mượn sách
+            </Button>
+          </Link>
+          <GenericExport collectionname={"BorrowingDetails"} />
+        </div>
       </div>
       <div className="flex space-x-4 mb-4">
         <Search
