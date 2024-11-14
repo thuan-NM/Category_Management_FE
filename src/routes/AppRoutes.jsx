@@ -20,6 +20,7 @@ import BorrowingDetailsList from '../pages/BorrowingDetail/BorrowingDetailList';
 import BorrowingDetailsForm from '../pages/BorrowingDetail/BorrowingDetailForm';
 import LoginPage from '../pages/Auth/Login';
 import ProtectedRoute from './ProtectedRoute';
+import Statistics from '../pages/Statistics/Statistics';
 
 const AppRoutes = () => (
   <Routes>
@@ -56,6 +57,7 @@ const AppRoutes = () => (
       <Route path="/publishers" element={<PublisherList />} />
       <Route path="/publishers/new" element={<PublisherForm />} />
       <Route path="/publishers/edit/:id" element={<PublisherForm />} />
+      <Route path='/Statistics' element={<Statistics/>}/>
     </Route>
   </Routes>
 );

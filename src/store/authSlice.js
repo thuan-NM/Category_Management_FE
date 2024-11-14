@@ -1,11 +1,25 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+// const initialState = {
+//     isAuthenticated: localStorage.getItem('isAuthenticated') === 'true',
+//     user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null,
+//     token: localStorage.getItem('token') || null,
+// };
+
 const initialState = {
     isAuthenticated: localStorage.getItem('isAuthenticated') === 'true',
-    user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null,
+    user: (() => {
+      const userData = localStorage.getItem('user');
+      try {
+        return userData ? JSON.parse(userData) : null;
+      } catch (error) {
+        console.error("Lỗi khi parse dữ liệu user:", error);
+        return null;
+      }
+    })(),
     token: localStorage.getItem('token') || null,
-};
-
+  };
+  
 const authSlice = createSlice({
     name: 'auth',
     initialState,

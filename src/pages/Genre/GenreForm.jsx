@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import GenreServices from '../../services/GenreServices';
 
 const GenreForm = () => {
   const [genre, setGenre] = useState({
     genre_name: '',
+    description: '', // Add description to the initial state
   });
   const navigate = useNavigate();
   const { id } = useParams();
@@ -53,6 +53,18 @@ const GenreForm = () => {
             required
           />
         </div>
+
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2">Mô tả</label>
+          <textarea
+            name="description"
+            value={genre.description}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
+            rows="4"
+          />
+        </div>
+
         <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
           {id ? 'Cập nhật' : 'Thêm mới'}
         </button>
