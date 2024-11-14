@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { PencilSquareIcon, TrashIcon, PlusIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import LibraryCardServices from '../../services/LibraryCardServices';
 import { toast } from 'react-toastify';
+import GenericExport from '../../components/GenericExport';
 
 const LibraryCardList = () => {
   const [cards, setCards] = useState([]);
@@ -26,7 +27,7 @@ const LibraryCardList = () => {
       setCards(res.data.rows);
       setTotalCards(res.data.count);
       setError(null);
-      
+
       if (search) {
         toast.success("Tìm kiếm thành công!");
       }
@@ -78,10 +79,13 @@ const LibraryCardList = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold">Danh sách Thẻ thư viện</h2>
-        <Link to="/librarycards/new" className="mt-4 md:mt-0 bg-blue-600 text-white px-4 py-2 rounded flex items-center hover:bg-blue-700 transition duration-200">
-          <PlusIcon className="h-5 w-5 mr-2" />
-          Thêm Thẻ thư viện
-        </Link>
+        <div className="flex space-x-2">
+          <Link to="/librarycards/new" className="mt-4 md:mt-0 bg-blue-600 text-white px-4 py-2 rounded flex items-center hover:bg-blue-700 transition duration-200">
+            <PlusIcon className="h-5 w-5 mr-2" />
+            Thêm Thẻ thư viện
+          </Link>
+          <GenericExport collectionname={"LibraryCard"} />
+        </div>
       </div>
 
       {/* Error Message */}
@@ -115,14 +119,14 @@ const LibraryCardList = () => {
         <table className="min-w-full bg-white shadow-md rounded-lg">
           <thead className="bg-gray-800 text-white">
             <tr>
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Số thẻ</th>
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Ngày bắt đầu</th>
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Ngày hết hạn</th>
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Tên người đọc</th>
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Địa chỉ</th>
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Số sách tối đa</th>
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Ghi chú</th>
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left">Hành động</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500 ">Số thẻ</th>
+              <th className="py-3 px-3 uppercase font-semibold text-sm text-center border-r border-gray-500 ">Bắt đầu</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500 ">Hết hạn</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500 ">Tên người đọc</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500 ">Địa chỉ</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-left border-r border-gray-500">Tối đa</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500 ">Ghi chú</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-center">Hành động</th>
             </tr>
           </thead>
           <tbody className="text-gray-700">
@@ -136,7 +140,7 @@ const LibraryCardList = () => {
                   <td className="py-3 px-4">{card.address || 'N/A'}</td>
                   <td className="py-3 px-4">{card.max_books_allowed}</td>
                   <td className="py-3 px-4">{card.notes || 'N/A'}</td>
-                  <td className="py-3 px-4 flex space-x-2">
+                  <td className="py-3 px-4 flex space-x-2 justify-center">
                     <Link to={`/librarycards/edit/${card.card_number}`} className="text-yellow-600 hover:text-yellow-800">
                       <PencilSquareIcon className="h-5 w-5" />
                     </Link>

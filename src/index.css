@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom styles for Ant Design table header using Tailwind classes */
+
+.custom-ant-table .ant-table-thead>tr>th {
+    @apply text-center;
+}

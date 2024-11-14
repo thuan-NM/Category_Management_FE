@@ -6,13 +6,15 @@ import BookServices from '../../services/BookServices';
 import AuthorServices from '../../services/AuthorServices';
 import GenreServices from '../../services/GenreServices';
 import PublisherServices from '../../services/PublisherServices';
-import { toast } from 'react-toastify'; // Import toast
+import { toast } from 'react-toastify';
 import {
   PencilSquareIcon,
   PlusIcon,
 } from "@heroicons/react/24/outline";
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import { Button } from 'antd';
+import { Button, Select } from 'antd';
+
+const { Option } = Select; // Import Option từ antd
 
 const BookForm = () => {
   const [book, setBook] = useState({
@@ -21,33 +23,32 @@ const BookForm = () => {
     author_id: '',
     genre_id: '',
     publisher_id: '',
-    quantity: '', // Added quantity field
+    quantity: '',
   });
   const [authors, setAuthors] = useState([]);
   const [genres, setGenres] = useState([]);
   const [publishers, setPublishers] = useState([]);
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(null); // Error state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
   const { id } = useParams();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch authors, genres, and publishers concurrently
         const [authorsRes, genresRes, publishersRes] = await Promise.all([
           AuthorServices.getAll(),
           GenreServices.getAll(),
           PublisherServices.getAll(),
         ]);
 
-        setAuthors(authorsRes.data); // Assuming AuthorServices.getAll() returns data directly
-        setGenres(genresRes.data.rows); // Assuming GenreServices.getAll() returns { rows, count }
-        setPublishers(publishersRes.data.rows); // Assuming PublisherServices.getAll() returns { rows, count }
+        setAuthors(authorsRes.rows);
+        setGenres(genresRes.rows);
+        setPublishers(publishersRes.rows);
 
         if (id) {
           const bookRes = await BookServices.getById(id);
-          setBook(bookRes); // Correctly set the book data
+          setBook(bookRes);
         }
 
         setLoading(false);
@@ -62,11 +63,20 @@ const BookForm = () => {
     fetchData();
   }, [id]);
 
-  const handleChange = (e) => {
+  // Hàm xử lý cho các trường input thông thường
+  const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setBook({
       ...book,
       [name]: type === 'checkbox' ? checked : value,
+    });
+  };
+
+  // Hàm xử lý chung cho các Select
+  const handleSelectChange = (value, fieldName) => {
+    setBook({
+      ...book,
+      [fieldName]: value,
     });
   };
 
@@ -134,7 +144,7 @@ const BookForm = () => {
               type="text"
               name="title"
               value={book.title}
-              onChange={handleChange}
+              onChange={handleInputChange}
               placeholder="Nhập tiêu đề sách"
               className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200"
               required
@@ -148,68 +158,80 @@ const BookForm = () => {
               type="number"
               name="publication_year"
               value={book.publication_year}
-              onChange={handleChange}
+              onChange={handleInputChange}
               placeholder="Nhập năm xuất bản"
               className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200"
-              min="0" // Ensures publication year is non-negative
+              min="0"
             />
           </div>
 
           {/* Tác giả */}
           <div className="mb-4">
             <label className="block text-gray-700 font-medium mb-2">Tác giả</label>
-            <select
+            <Select
+              showSearch
               name="author_id"
-              value={book.author_id}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200"
+              value={book.author_id || undefined} // undefined để hiển thị placeholder khi không có giá trị
+              onChange={(value) => handleSelectChange(value, 'author_id')}
+              className='w-full'
               required
+              placeholder="Chọn tác giả"
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                option.children.toLowerCase().includes(input.toLowerCase())}
             >
-              <option value="">Chọn tác giả</option>
               {authors.map((author) => (
-                <option key={author.author_id} value={author.author_id}>
+                <Option key={author.author_id} value={author.author_id}>
                   {author.author_name}
-                </option>
+                </Option>
               ))}
-            </select>
+            </Select>
           </div>
 
           {/* Thể loại */}
           <div className="mb-4">
             <label className="block text-gray-700 font-medium mb-2">Thể loại</label>
-            <select
+            <Select
+              showSearch
               name="genre_id"
-              value={book.genre_id}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200"
+              value={book.genre_id || undefined}
+              onChange={(value) => handleSelectChange(value, 'genre_id')}
+              className='w-full'
               required
+              placeholder="Chọn thể loại"
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                option.children.toLowerCase().includes(input.toLowerCase())}
             >
-              <option value="">Chọn thể loại</option>
               {genres.map((genre) => (
-                <option key={genre.genre_id} value={genre.genre_id}>
+                <Option key={genre.genre_id} value={genre.genre_id}>
                   {genre.genre_name}
-                </option>
+                </Option>
               ))}
-            </select>
+            </Select>
           </div>
 
           {/* Nhà xuất bản */}
           <div className="mb-4">
             <label className="block text-gray-700 font-medium mb-2">Nhà xuất bản</label>
-            <select
+            <Select
+              showSearch
               name="publisher_id"
-              value={book.publisher_id}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200"
+              value={book.publisher_id || undefined}
+              onChange={(value) => handleSelectChange(value, 'publisher_id')}
+              className='w-full'
               required
+              placeholder="Chọn nhà xuất bản"
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                option.children.toLowerCase().includes(input.toLowerCase())}
             >
-              <option value="">Chọn nhà xuất bản</option>
               {publishers.map((publisher) => (
-                <option key={publisher.publisher_id} value={publisher.publisher_id}>
+                <Option key={publisher.publisher_id} value={publisher.publisher_id}>
                   {publisher.publisher_name}
-                </option>
+                </Option>
               ))}
-            </select>
+            </Select>
           </div>
 
           {/* Số lượng */}
@@ -219,11 +241,11 @@ const BookForm = () => {
               type="number"
               name="quantity"
               value={book.quantity}
-              onChange={handleChange}
+              onChange={handleInputChange}
               placeholder="Nhập số lượng sách"
               className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200"
               required
-              min="0" // Ensures quantity is non-negative
+              min="0"
             />
           </div>
 

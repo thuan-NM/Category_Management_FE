@@ -14,6 +14,7 @@ import BorrowingServices from "../../services/BorrowingServices";
 import LibraryCardServices from "../../services/LibraryCardServices";
 import BookServices from "../../services/BookServices";
 import { useSelector } from "react-redux";
+import { ArrowLeftOutlined } from '@ant-design/icons';
 
 const { Option } = Select;
 
@@ -144,91 +145,98 @@ const BorrowingForm = () => {
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-6">
-        {id ? "Chỉnh sửa Mượn sách" : "Thêm mới Mượn sách"}
-      </h2>
-      <Form onFinish={handleSubmit} layout="vertical">
-        <Form.Item label="Ngày mượn">
-          <DatePicker
-            onChange={(date, dateString) =>
-              setBorrowing((prev) => ({ ...prev, borrow_date: dateString }))
-            }
-            style={{ width: "100%" }}
-          />
-        </Form.Item>
+      <div style={{ marginBottom: 16 }}>
+        <Button type="link" onClick={() => navigate('/borrowings')} style={{ padding: 0, fontSize: 16 }}>
+          <ArrowLeftOutlined className='text-black' /> <span className='hover:underline text-black'>Quay lại</span>
+        </Button>
+      </div>
+      <div className="max-w-3xl mx-auto mt-10 bg-white p-8 rounded-lg shadow-md">
+        <h2 className="text-3xl font-bold text-center mb-8 text-blue-800">
+          {id ? "Chỉnh sửa Mượn sách" : "Thêm mới Mượn sách"}
+        </h2>
+        <Form onFinish={handleSubmit} layout="vertical">
+          <Form.Item label="Ngày mượn">
+            <DatePicker
+              onChange={(date, dateString) =>
+                setBorrowing((prev) => ({ ...prev, borrow_date: dateString }))
+              }
+              style={{ width: "100%" }}
+            />
+          </Form.Item>
 
-        <Form.Item label="Thẻ thư viện">
-          <Select
-            showSearch
-            placeholder="Chọn thẻ thư viện"
-            value={borrowing.card_number}
-            onChange={(value) => {
-              setBorrowing((prev) => ({ ...prev, card_number: value }));
-              set_max_books_allowed(
-                libraryCards.find((lc) => lc.card_number === value)
-                  .max_books_allowed
-              );
-            }}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            {libraryCards.map((card) => (
-              <Option key={card.card_number} value={card.card_number}>
-                {card.card_number}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-
-        <Typography.Text
-          type="secondary"
-          style={{ display: "block", marginTop: "8px", marginBottom: "8px" }}
-        >
-          Số lượng mượn tối đa:{" "}
-          <Typography.Text strong>{max_books_allowed}</Typography.Text>
-        </Typography.Text>
-
-        <Form.Item label="Sách mượn">
-          <Select
-            mode="multiple"
-            placeholder="Chọn sách"
-            value={borrowing.books.map((b) => b.book_id)}
-            onChange={handleBookChange}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            {books.map((book) => (
-              <Option key={book.book_id} value={book.book_id}>
-                {book.title}
-              </Option>
-            ))}
-          </Select>
-          {borrowing.books.map((book) => (
-            <div
-              key={book.book_id}
-              style={{ display: "flex", alignItems: "center", marginTop: 8 }}
+          <Form.Item label="Thẻ thư viện">
+            <Select
+              showSearch
+              placeholder="Chọn thẻ thư viện"
+              value={borrowing.card_number}
+              onChange={(value) => {
+                setBorrowing((prev) => ({ ...prev, card_number: value }));
+                set_max_books_allowed(
+                  libraryCards.find((lc) => lc.card_number === value)
+                    .max_books_allowed
+                );
+              }}
+              filterOption={(input, option) =>
+                option.children.toLowerCase().includes(input.toLowerCase())
+              }
             >
-              <span style={{ flex: 1 }}>
-                {books.find((b) => b.book_id === book.book_id)?.title}
-              </span>
-              <InputNumber
-                min={1}
-                value={book.quantity}
-                onChange={(value) => handleQuantityChange(book.book_id, value)}
-                style={{ width: 100 }}
-              />
-            </div>
-          ))}
-        </Form.Item>
+              {libraryCards.map((card) => (
+                <Option key={card.card_number} value={card.card_number}>
+                  {card.card_number}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
 
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            {id ? "Cập nhật" : "Thêm mới"}
-          </Button>
-        </Form.Item>
-      </Form>
+          <Typography.Text
+            type="secondary"
+            style={{ display: "block", marginTop: "8px", marginBottom: "8px" }}
+          >
+            Số lượng mượn tối đa:{" "}
+            <Typography.Text strong>{max_books_allowed}</Typography.Text>
+          </Typography.Text>
+
+          <Form.Item label="Sách mượn">
+            <Select
+              mode="multiple"
+              placeholder="Chọn sách"
+              value={borrowing.books.map((b) => b.book_id)}
+              onChange={handleBookChange}
+              filterOption={(input, option) =>
+                option.children.toLowerCase().includes(input.toLowerCase())
+              }
+            >
+              {books.map((book) => (
+                <Option key={book.book_id} value={book.book_id}>
+                  {book.title}
+                </Option>
+              ))}
+            </Select>
+            {borrowing.books.map((book) => (
+              <div
+                key={book.book_id}
+                style={{ display: "flex", alignItems: "center", marginTop: 8 }}
+              >
+                <span style={{ flex: 1 }}>
+                  {books.find((b) => b.book_id === book.book_id)?.title}
+                </span>
+                <InputNumber
+                  min={1}
+                  value={book.quantity}
+                  onChange={(value) => handleQuantityChange(book.book_id, value)}
+                  style={{ width: 100 }}
+                />
+              </div>
+            ))}
+          </Form.Item>
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              {id ? "Cập nhật" : "Thêm mới"}
+            </Button>
+          </Form.Item>
+        </Form>
+      </div>
     </div>
   );
 };
