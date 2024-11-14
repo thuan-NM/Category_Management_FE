@@ -28,6 +28,7 @@ const LibraryCardList = () => {
       setTotalCards(res.data.count);
       setError(null);
 
+
       if (search) {
         toast.success("Tìm kiếm thành công!");
       }
@@ -124,7 +125,7 @@ const LibraryCardList = () => {
               <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500 ">Hết hạn</th>
               <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500 ">Tên người đọc</th>
               <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500 ">Địa chỉ</th>
-              <th className="py-3 px-4 uppercase font-semibold text-sm text-left border-r border-gray-500">Tối đa</th>
+              <th className="py-3 px-4 uppercase font-semibold text-sm text-left border-r border-gray-500">Số sách tối đa</th>
               <th className="py-3 px-4 uppercase font-semibold text-sm text-center border-r border-gray-500 ">Ghi chú</th>
               <th className="py-3 px-4 uppercase font-semibold text-sm text-center">Hành động</th>
             </tr>
